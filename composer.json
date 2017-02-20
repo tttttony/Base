@@ -1,6 +1,6 @@
 {
-  "name": "tonycms/base",
-  "type": "laravel-module",
+  "name": "Base",
+  "type": "laravel-library",
   "description": "TonyCMS Base Module",
   "keywords": [
     "tonycms",
@@ -18,18 +18,10 @@
     "composer/installers": "~1.0",
 	"nwidart/laravel-modules": "^1.16"
   },
-  "repositories": [
-    {
-      "type": "vcs",
-      "url": "https://github.com/tonycms"
-    }
-  ],
   "autoload-dev": {
     "psr-4": {
       "Modules\\Base\\": "."
     }
-  },
-  "extra": {
   },
   "minimum-stability": "dev",
   "prefer-stable": true
