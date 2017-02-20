@@ -1,23 +1,28 @@
 {
-  "name": "tonycms/base",
-  "type": "laravel-library",
-  "description": "TonyCMS Base Module",
-  "keywords": [
-    "tonycms",
-    "base"
-  ],
-  "license": "MIT",
-  "authors": [
-    {
-      "name": "Tony Rouse",
-      "email": "tony@codewithtony.com"
-    }
-  ],
-  "require": {
-    "php": ">=5.5",
-    "composer/installers": "~1.0",
-	"nwidart/laravel-modules": "^1.16"
-  },
-  "minimum-stability": "dev",
-  "prefer-stable": true
+	"name": "tonycms/base",
+	"type": "laravel-library",
+	"description": "TonyCMS Base Module",
+	"keywords": [
+		"tonycms",
+		"base"
+	],
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Tony Rouse",
+			"email": "tony@codewithtony.com"
+		}
+	],
+	"require": {
+		"php": ">=5.5",
+		"composer/installers": "~1.0",
+		"nwidart/laravel-modules": "^1.16"
+	},
+	"autoload": {
+		"psr-4": {
+			"Modules\\Base\\": "."
+		}
+	},
+	"minimum-stability": "dev",
+	"prefer-stable": true
 }
