@@ -1,5 +1,5 @@
 {
-  "name": "TonyCMS/Base",
+  "name": "tonycms/base",
   "type": "laravel-library",
   "description": "TonyCMS Base Module",
   "keywords": [
