@@ -1,0 +1,36 @@
+{
+  "name": "tonycms/base",
+  "type": "laravel-module",
+  "description": "TonyCMS Base Module",
+  "keywords": [
+    "tonycms",
+    "base"
+  ],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Tony Rouse",
+      "email": "tony@codewithtony.com"
+    }
+  ],
+  "require": {
+    "php": ">=5.5",
+    "composer/installers": "~1.0",
+	"nwidart/laravel-modules": "^1.16"
+  },
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/tonycms"
+    }
+  ],
+  "autoload-dev": {
+    "psr-4": {
+      "Modules\\Base\\": ".",
+    }
+  },
+  "extra": {
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}
