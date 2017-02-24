@@ -1,6 +1,6 @@
 <?php namespace Modules\Base\Repositories\Eloquent;
 
-use App\Exceptions\GeneralException;
+use Modules\Base\Exceptions\GeneralException;
 use Illuminate\Database\Eloquent\Builder;
 use Modules\Base\Repositories\BaseRepository;
 /**

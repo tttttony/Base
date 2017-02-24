@@ -1,6 +1,8 @@
 <?php namespace Modules\Base\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Routing\Router;
+use Modules\Base\Http\Middleware\ThemeMiddleware;
 
 
 class BaseServiceProvider extends ServiceProvider {
@@ -36,15 +38,7 @@ class BaseServiceProvider extends ServiceProvider {
 
 	private function registerBindings()
 	{
-		/*
-		$this->app->bind(
-			BaseRepository::class,
-			function () {
-				$repository = new EloquentBaseRepository(new Base());
-				return $repository;
-			}
-		);
-		*/
+
 	}
 
 	/**
