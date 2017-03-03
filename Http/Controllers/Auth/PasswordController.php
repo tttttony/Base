@@ -3,11 +3,11 @@
 use App\Http\Controllers\Controller;
 use Modules\Base\Services\Access\Traits\ChangePasswords;
 use Modules\Base\Services\Access\Traits\ResetsPasswords;
-use Modules\Base\Repositories\Frontend\User\UserContract;
+use Modules\Base\Repositories\UserRepository;
 
 /**
  * Class PasswordController
- * @package App\Http\Controllers\Frontend\Auth
+ * @package Modules\Base\Http\Controllers\Auth
  */
 class PasswordController extends Controller
 {
@@ -22,9 +22,9 @@ class PasswordController extends Controller
     protected $redirectTo = '/dashboard';
 
     /**
-     * @param UserContract $user
+     * @param UserRepository $user
      */
-    public function __construct(UserContract $user)
+    public function __construct(UserRepository $user)
     {
         $this->user = $user;
     }

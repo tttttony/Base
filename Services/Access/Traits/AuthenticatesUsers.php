@@ -43,7 +43,7 @@ trait AuthenticatesUsers
             return $this->sendLockoutResponse($request);
         }
 
-        if (auth()->attempt($request->only($this->loginUsername(), 'password'), $request->has('remember'))) {
+        if (auth()->attempt($request->only($this->username(), 'password'), $request->has('remember'))) {
             return $this->handleUserWasAuthenticated($request, $throttles);
         }
 
@@ -55,9 +55,9 @@ trait AuthenticatesUsers
         }
 
         return redirect()->back()
-            ->withInput(array_merge($request->only($this->loginUsername(), 'remember')))
+            ->withInput(array_merge($request->only($this->username(), 'remember')))
             ->withErrors([
-                $this->loginUsername() => trans('auth.failed'),
+                $this->username() => trans('auth.failed'),
             ]);
     }
 
@@ -73,7 +73,7 @@ trait AuthenticatesUsers
             app('session')->forget(config('access.socialite_session_name'));
         }
 
-        access()->user()->clearApiToken();
+        //access()->user()->clearApiToken();
         event(new UserLoggedOut(access()->user()));
         auth()->logout();
         return redirect(property_exists($this, 'redirectAfterLogout') ? $this->redirectAfterLogout : '/');
@@ -84,7 +84,7 @@ trait AuthenticatesUsers
      *
      * @return string
      */
-    public function loginUsername()
+    public function username()
     {
         return 'email';
     }

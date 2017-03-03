@@ -16,13 +16,18 @@
 	"require": {
 		"php": ">=5.5",
 		"composer/installers": "~1.0",
+		"laravel/passport": "^2.0",
+		"nwidart/laravel-modules": "^1.16",
 		"laravel/socialite": "^2.0",
-		"nwidart/laravel-modules": "^1.16"
+		"creativeorange/gravatar": "^1.0"
 	},
 	"autoload": {
 		"psr-4": {
 			"Modules\\Base\\": "."
-		}
+		},
+		"files": [
+			"./helpers.php"
+		]
 	},
 	"minimum-stability": "dev",
 	"prefer-stable": true

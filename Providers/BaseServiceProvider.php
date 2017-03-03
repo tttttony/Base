@@ -1,7 +1,7 @@
 <?php namespace Modules\Base\Providers;
 
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Routing\Router;
+use Illuminate\Support\ServiceProvider;
 use Modules\Base\Http\Middleware\ThemeMiddleware;
 
 
@@ -19,11 +19,13 @@ class BaseServiceProvider extends ServiceProvider {
 	 * 
 	 * @return void
 	 */
-	public function boot()
+	public function boot(Router $router)
 	{
 		$this->registerTranslations();
 		$this->registerConfig();
 		$this->registerViews();
+
+		$router->aliasMiddleware('theme', ThemeMiddleware::class);
 	}
 
 	/**

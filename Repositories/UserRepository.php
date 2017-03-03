@@ -62,10 +62,4 @@ interface UserRepository
      * @return mixed
      */
     public function changePassword($input);
-
-    /**
-     * @param  $input
-     * @return mixed
-     */
-    public function setDefaultAddress($address_id);
 }

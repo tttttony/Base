@@ -15,7 +15,7 @@ use Modules\Base\Repositories\UserRepository;
  * Class EloquentUserRepository
  * @package App\Repositories\Frontend\User
  */
-abstract class EloquentUserRepository implements UserRepository
+class EloquentUserRepository implements UserRepository
 {
 
     /**

@@ -33,7 +33,7 @@ class AuthController extends Controller
     protected $redirectAfterLogout = '/';
 
     /**
-     * @param UserContract $user
+     * @param UserRepository $user
      */
     public function __construct(UserRepository $user, UserService $userService)
     {

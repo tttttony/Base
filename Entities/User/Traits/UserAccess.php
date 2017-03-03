@@ -116,7 +116,7 @@ trait UserAccess
                 return true;
             }
         }
-
+/*
         foreach($this->accounts as $account) {
             $role = Role::find($account->pivot->role);
 
@@ -140,7 +140,7 @@ trait UserAccess
                 }
             }
         }
-
+*/
 
         return false;
     }
