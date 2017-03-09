@@ -3,7 +3,7 @@
 namespace Modules\Base\Services\Access\Traits;
 
 use Illuminate\Http\Request;
-use App\Exceptions\GeneralException;
+use Modules\Base\Exceptions\GeneralException;
 use Modules\Base\Events\Auth\UserLoggedIn;
 use Modules\Base\Events\Auth\UserLoggedOut;
 use Illuminate\Foundation\Auth\ThrottlesLogins;
@@ -113,8 +113,7 @@ trait AuthenticatesUsers
             throw new GeneralException(trans('exceptions.frontend.auth.deactivated'));
         }
 
-        $api_token = access()->user()->newApiToken();
         event(new UserLoggedIn(access()->user()));
-        return redirect()->intended($this->redirectPath())->with(['api_token' => $api_token]);
+        return redirect()->intended($this->redirectPath());
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-Route::group(['middleware' => 'guest'], function () {
+Route::group(['middleware' => ['guest']], function () {
     // Authentication Routes
     Route::get('login', '\Modules\Base\Http\Controllers\Auth\AuthController@showLoginForm')
         ->name('auth.login');
@@ -47,19 +47,15 @@ Route::group(['middleware' => 'access.routeNeedsPermission:view-access-managemen
      */
 
     Route::resource('users', '\Modules\Base\Http\Controllers\Access\User\UserController', ['except' => ['show'], 'as' => 'admin.access']);
-    Route::get('users/', '\Modules\Base\Http\Controllers\Access\User\UserController@index')->name('admin.access.users.index');
-
-    Route::get('users/deactivated', '\Modules\Base\Http\Controllers\Access\User\UserController@deactivated')->name('admin.access.users.deactivated');
-    Route::get('users/deleted', '\Modules\Base\Http\Controllers\Access\User\UserController@deleted')->name('admin.access.users.deleted');
     Route::get('account/confirm/resend/{user_id}', '\Modules\Base\Http\Controllers\Access\User\UserController@resendConfirmationEmail')->name('admin.account.confirm.resend');
 
     /**
      * Specific User
      */
     Route::group(['prefix' => 'user/{id}', 'where' => ['id' => '[0-9]+']], function () {
-        Route::get('delete', '\Modules\Base\Http\Controllers\Access\User\UserController@delete')->name('admin.access.user.delete-permanently');
-        Route::get('restore', '\Modules\Base\Http\Controllers\Access\User\UserController@restore')->name('admin.access.user.restore');
-        Route::get('mark/{status}', '\Modules\Base\Http\Controllers\Access\User\UserController@mark')->name('admin.access.user.mark')->where(['status' => '[0,1]']);
+        //Route::get('delete', '\Modules\Base\Http\Controllers\Access\User\UserController@delete')->name('admin.access.user.delete-permanently');
+        //Route::get('restore', '\Modules\Base\Http\Controllers\Access\User\UserController@restore')->name('admin.access.user.restore');
+        //Route::get('mark/{status}', '\Modules\Base\Http\Controllers\Access\User\UserController@mark')->name('admin.access.user.mark')->where(['status' => '[0,1]']);
         Route::get('password/change', '\Modules\Base\Http\Controllers\Access\User\UserController@changePassword')->name('admin.access.user.change-password');
         Route::post('password/change', '\Modules\Base\Http\Controllers\Access\User\UserController@updatePassword')->name('admin.access.user.change-password');
     });

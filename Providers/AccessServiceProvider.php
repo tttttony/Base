@@ -2,6 +2,7 @@
 
 namespace Modules\Base\Providers;
 
+use Carbon\Carbon;
 use Illuminate\Routing\Router;
 use Modules\Base\Http\Middleware\Authenticate;
 use Modules\Base\Services\Access\Access;
@@ -33,6 +34,8 @@ class AccessServiceProvider extends ServiceProvider
 
         //TODO: Move this into a Auth Service Provider
         Passport::routes();
+        Passport::tokensExpireIn(Carbon::now()->addDays(15));
+        Passport::refreshTokensExpireIn(Carbon::now()->addDays(30));
     }
 
     /**

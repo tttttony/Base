@@ -144,7 +144,8 @@ EOD;
 
 		return <<<EOD
 {
-	"name": "pingpong-modules/{$lower_module}",
+	"name": "tonycms/{$lower_module}",
+	"type": "laravel-library",
 	"description": "",
 	"authors": [
 		{
@@ -152,6 +153,11 @@ EOD;
 			"email": "tony@codewithtony.com"
 		}
 	],
+	"require": {
+		"php": ">=5.5",
+		"composer/installers": "~1.0",
+		"nwidart/laravel-modules": "^1.16"
+	},
 	"autoload": {
 		"psr-4": {
 			"Modules\\{$this->module}\\": ""
@@ -285,13 +291,14 @@ EOD;
 	public function getLanguageFile()
 	{
 		$lower_module = strtolower($this->module);
+		$lower_module_plural = strtolower($this->module_plural);
 		return <<<EOD
 <?php
 return [
-    '{$lower_module}s' => '{$lower_module}s',
+    '{$lower_module_plural}' => '{$lower_module_plural}',
     '{$lower_module}' => '{$lower_module}',
     'uppercase' => [
-        '{$lower_module}s' => '{$this->module}s',
+        '{$lower_module_plural}' => '{$this->module_plural}',
         '{$lower_module}' => '{$this->module}',
     ]
 ];
@@ -304,12 +311,12 @@ EOD;
 		$lower_module = strtolower($this->module);
 		return <<<EOD
 @permission('{$lower_module}.view-management')
-<li class="{{ Active::pattern('{$lower_module}/*') }} treeview">
+<li class="{{ Active::checkUriPattern('{$lower_module}/*') }} treeview">
     <a href="#">
     {{ trans('{$lower_module}::lang.uppercase.{$lower_module}') }}
     <i class="fa fa-angle-left pull-right"></i>
     </a>
-    <ul class="treeview-menu {{ Active::pattern('{$lower_module}*', 'menu-open') }}" style="display: none; {{ Active::pattern('{$lower_module}*', 'display: block;') }}">
+    <ul class="treeview-menu {{ Active::checkUriPattern('{$lower_module}*', 'menu-open') }}" style="display: none; {{ Active::checkUriPattern('{$lower_module}*', 'display: block;') }}">
 
 		{{-- object sidebar file go here --}}
 
@@ -332,28 +339,7 @@ EOD;
 	{
 		return <<<EOD
 <?php
-Route::group(['namespace' => 'Modules\\{$this->module}\Http\Controllers'], function(){
-	Route::group(['domain' => 'admin'.Config::get('session.domain'), 'middleware' => ['web', 'admin', 'theme:admin']], function () {
-		Route::group(['prefix' => '{$this->module}'], function()
-		{
 
-		});
-	});
-
-	Route::group(['domain' => 'retailers'.Config::get('session.domain'), 'namespace' => 'Retailer', 'middleware' => ['web', 'theme:retailer']], function () {
-		Route::group(['prefix' => '{$this->module}'], function()
-		{
-
-		});
-	});
-
-	Route::group(['middleware' => ['web', 'theme:consumer']], function() {
-		Route::group(['prefix' => '{$this->module}'], function()
-		{
-
-		});
-	});
-});
 EOD;
 
 	}

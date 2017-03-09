@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Blt\Entities\Traits;
+namespace Modules\Base\Entities\Traits;
 
 use Webpatser\Uuid\Uuid;
 
