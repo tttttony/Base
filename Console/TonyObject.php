@@ -486,7 +486,7 @@ EOD;
         return <<<EOD
 <?php namespace Modules\\{$this->module}\Http\Requests\\{$this->object_plural};
 
-use App\Http\Requests\Request;
+use Modules\Base\Http\Requests\Request;
 
 /**
  * Class {$type}{$this->object}Request
