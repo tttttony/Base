@@ -124,7 +124,7 @@ class EloquentPermissionRepository implements PermissionRepository
                     $role = $this->roles->findOrThrowException($role_id, true);
 
                     //Get the roles permissions into an array
-                    $role_permissions = $role->permissions->lists('id')->all();
+                    $role_permissions = $role->permissions->pluck('id')->all();
 
                     if (count($role_permissions) >= 1) {
                         //Role has permissions, gather them first
@@ -191,7 +191,7 @@ class EloquentPermissionRepository implements PermissionRepository
                     $role = $this->roles->findOrThrowException($role_id, true);
 
                     //Get the roles permissions into an array
-                    $role_permissions = $role->permissions->lists('id')->all();
+                    $role_permissions = $role->permissions->pluck('id')->all();
 
                     if (count($role_permissions) >= 1) {
                         //Role has permissions, gather them first

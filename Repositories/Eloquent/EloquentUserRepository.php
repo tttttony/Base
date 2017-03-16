@@ -15,7 +15,7 @@ use Modules\Base\Repositories\UserRepository;
  * Class EloquentUserRepository
  * @package App\Repositories\Frontend\User
  */
-class EloquentUserRepository implements UserRepository
+class EloquentUserRepository extends EloquentBaseRepository implements UserRepository
 {
 
     /**
@@ -36,6 +36,60 @@ class EloquentUserRepository implements UserRepository
         $this->role = $role;
         $this->user = $user;
     }
+/***
+ * Start Access only stuff
+ */
+
+
+    /**
+     * @param  $id
+     * @param  bool               $withRoles
+     * @throws GeneralException
+     * @return mixed
+     */
+    public function findOrThrowException($id, $withRoles = false)
+    {
+        if ($withRoles) {
+            $user = User::with('addresses', 'profile', 'roles')->withTrashed()->find($id);
+        } else {
+            $user = User::with('addresses', 'profile')->withTrashed()->find($id);
+        }
+
+        if (!is_null($user)) {
+            return $user;
+        }
+
+        throw new GeneralException(trans('exceptions.backend.access.users.not_found'));
+    }
+
+    /**
+     * @param  $per_page
+     * @param  string      $order_by
+     * @param  string      $sort
+     * @param  int         $status
+     * @return mixed
+     */
+    public function getUsersPaginated($per_page, $status = 1, $order_by = 'id', $sort = 'asc')
+    {
+        return User::where('status', $status)
+            ->orderBy($order_by, $sort)
+            ->paginate($per_page);
+    }
+
+    /**
+     * @param  $per_page
+     * @return \Illuminate\Pagination\Paginator
+     */
+    public function getDeletedUsersPaginated($per_page)
+    {
+        return User::onlyTrashed()
+            ->paginate($per_page);
+    }
+
+
+/***
+ * End Access only stuff
+ */
 
     /**
      * @param $id
@@ -78,7 +132,7 @@ class EloquentUserRepository implements UserRepository
      * @param bool $provider
      * @return static
      */
-    public function create(array $data, $provider = false)
+    public function create($data, $provider = false)
     {
         /*
          * needs a db transaction

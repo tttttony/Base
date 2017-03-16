@@ -40,22 +40,25 @@ Route::group(['middleware' => 'auth'], function () {
 });
 
 
-Route::group(['middleware' => 'access.routeNeedsPermission:view-access-management'], function() {
-
+Route::group([
+    'middleware' => 'access.routeNeedsPermission:view-access-management'
+], function() {
     /**
      * User Management
      */
-
     Route::resource('users', '\Modules\Base\Http\Controllers\Access\User\UserController', ['except' => ['show'], 'as' => 'admin.access']);
+
+    Route::get('users/deactivated', '\Modules\Base\Http\Controllers\Access\User\UserController@deactivated')->name('admin.access.users.deactivated');
+    Route::get('users/deleted', '\Modules\Base\Http\Controllers\Access\User\UserController@deleted')->name('admin.access.users.deleted');
     Route::get('account/confirm/resend/{user_id}', '\Modules\Base\Http\Controllers\Access\User\UserController@resendConfirmationEmail')->name('admin.account.confirm.resend');
 
     /**
      * Specific User
      */
-    Route::group(['prefix' => 'user/{id}', 'where' => ['id' => '[0-9]+']], function () {
-        //Route::get('delete', '\Modules\Base\Http\Controllers\Access\User\UserController@delete')->name('admin.access.user.delete-permanently');
-        //Route::get('restore', '\Modules\Base\Http\Controllers\Access\User\UserController@restore')->name('admin.access.user.restore');
-        //Route::get('mark/{status}', '\Modules\Base\Http\Controllers\Access\User\UserController@mark')->name('admin.access.user.mark')->where(['status' => '[0,1]']);
+    Route::group(['prefix' => 'user/{id}', 'where' => ['id' => '[0-9]+']], function() {
+        Route::get('delete', '\Modules\Base\Http\Controllers\Access\User\UserController@delete')->name('admin.access.user.delete-permanently');
+        Route::get('restore', '\Modules\Base\Http\Controllers\Access\User\UserController@restore')->name('admin.access.user.restore');
+        Route::get('mark/{status}', '\Modules\Base\Http\Controllers\Access\User\UserController@mark')->name('admin.access.user.mark')->where(['status' => '[0,1]']);
         Route::get('password/change', '\Modules\Base\Http\Controllers\Access\User\UserController@changePassword')->name('admin.access.user.change-password');
         Route::post('password/change', '\Modules\Base\Http\Controllers\Access\User\UserController@updatePassword')->name('admin.access.user.change-password');
     });
@@ -63,14 +66,14 @@ Route::group(['middleware' => 'access.routeNeedsPermission:view-access-managemen
     /**
      * Role Management
      */
-    Route::resource('roles', '\Modules\Base\Http\Controllers\Access\Role\RoleController', ['except' => ['show'], 'as' => 'admin']);
+    Route::resource('roles', '\Modules\Base\Http\Controllers\Access\Role\RoleController', ['except' => ['show'], 'as' => 'admin.access']);
 
 
     /**
      * Permission Management
      */
-    Route::resource('permission-group', '\Modules\Base\Http\Controllers\Access\Permission\PermissionGroupController', ['except' => ['index', 'show'], 'as' => 'admin']);
-    Route::resource('permissions', '\Modules\Base\Http\Controllers\Access\Permission\PermissionController', ['except' => ['show'], 'as' => 'admin']);
+    Route::resource('permission-group', '\Modules\Base\Http\Controllers\Access\Permission\PermissionGroupController', ['except' => ['index', 'show'], 'as' => 'admin.access.roles']);
+    Route::resource('permissions', '\Modules\Base\Http\Controllers\Access\Permission\PermissionController', ['except' => ['show'], 'as' => 'admin.access.roles']);
 
     Route::group(['prefix' => 'groups'], function() {
         Route::post('update-sort', '\Modules\Base\Http\Controllers\Access\Permission\PermissionGroupController@updateSort')->name('admin.access.roles.groups.update-sort');

@@ -5,7 +5,7 @@ namespace Modules\Base\Services\Access\Traits;
 use Illuminate\Support\Facades\Auth;
 use Modules\Base\Events\Auth\UserRegistered;
 use Modules\Base\Http\Requests\Auth\RegisterRequest;
-use Modules\Users\Services\UserService;
+use Modules\Base\Services\UserService;
 
 /**
  * Class RegistersUsers

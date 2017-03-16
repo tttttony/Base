@@ -29,7 +29,7 @@ interface UserRepository
      * @param bool $provider
      * @return mixed
      */
-    public function create(array $data, $provider = false);
+    public function create($data, $provider = false);
 
     /**
      * @param $data

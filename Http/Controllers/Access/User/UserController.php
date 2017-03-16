@@ -124,9 +124,9 @@ class UserController extends Controller
         return view('access.edit')
             ->withUser($user)
 #            ->withAddress($user->addresses->first())
-            ->withUserRoles($user->roles->lists('id')->all())
+            ->withUserRoles($user->roles->pluck('id')->all())
             ->withRoles($this->roles->getAllRoles('sort', 'asc', true))
-            ->withUserPermissions($user->permissions->lists('id')->all())
+            ->withUserPermissions($user->permissions->pluck('id')->all())
             ->withPermissions($this->groups->getAllGroups());
     }
 

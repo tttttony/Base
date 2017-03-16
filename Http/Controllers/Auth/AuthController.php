@@ -3,7 +3,7 @@
 use Modules\Base\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\ThrottlesLogins;
 
-use Modules\Users\Services\UserService;
+use Modules\Base\Services\UserService;
 
 use Modules\Base\Services\Access\Traits\AuthenticatesAndRegistersUsers;
 use Modules\Base\Services\Access\Traits\ConfirmUsers;

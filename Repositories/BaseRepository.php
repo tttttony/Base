@@ -17,6 +17,8 @@ interface BaseRepository
      */
     public function all();
 
+    public function listAll();
+
     public function paginate($perPage = 100);
 
     /**

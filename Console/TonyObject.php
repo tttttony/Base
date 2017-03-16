@@ -356,7 +356,7 @@ EOD;
 
 use Illuminate\Database\Eloquent\Model;
 use Modules\\{$this->module}\Entities\Traits\Relationships\\{$this->object}Relationships;
-use Modules\Base\Entities\BaseEntity
+use Modules\Base\Entities\BaseEntity;
 
 class {$this->object} extends BaseEntity
 {
@@ -395,7 +395,7 @@ use Modules\\{$this->module}\Http\Requests\\{$this->object_plural}\Delete{$this-
 use Modules\\{$this->module}\Http\Requests\\{$this->object_plural}\Edit{$this->object}Request;
 use Modules\\{$this->module}\Http\Requests\\{$this->object_plural}\Store{$this->object}Request;
 use Modules\\{$this->module}\Repositories\\{$this->object_plural}Repository;
-use Pingpong\Modules\Routing\Controller;
+use Modules\Base\Http\Controllers\Controller;
 
 class {$this->object_plural}Controller extends Controller {
 
@@ -434,7 +434,8 @@ class {$this->object_plural}Controller extends Controller {
 	{
 		\$this->{$lower_object}->create(\$request->all());
 
-		return redirect()->route('admin.{$lower_module}.{$lower_object_plural}.index')->withFlashSuccess(trans('{$lower_module}::{$lower_object}.actions.created'));
+        flash(__('{$lower_module}::{$lower_object}.actions.created'), 'success');
+		return redirect()->route('admin.{$lower_module}.{$lower_object_plural}.index');
 	}
 
 	/**
@@ -456,7 +457,8 @@ class {$this->object_plural}Controller extends Controller {
 	public function update(\$id, Store{$this->object}Request \$request)
 	{
 		\$this->{$lower_object}->update(\$id, \$request->all());
-		return redirect()->route('admin.{$lower_module}.{$lower_object_plural}.index', [\$id])->withFlashSuccess(trans('{$lower_module}::{$lower_object}.actions.updated'));
+        flash(__('{$lower_module}::{$lower_object}.actions.updated'), 'success');
+		return redirect()->route('admin.{$lower_module}.{$lower_object_plural}.index', [\$id]);
 	}
 
 	/**
@@ -467,7 +469,8 @@ class {$this->object_plural}Controller extends Controller {
 	public function destroy(\$id, Delete{$this->object}Request \$request)
 	{
 		\$this->{$lower_object}->destroy(\$id);
-		return redirect()->back()->withFlashSuccess(trans('{$lower_module}::{$lower_object}.actions.deleted'));
+        flash(__('{$lower_module}::{$lower_object}.actions.deleted'), 'success');
+		return redirect()->back();
 	}
 }
 EOD;

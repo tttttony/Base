@@ -2,6 +2,7 @@
 
 use DB;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Passport\HasApiTokens;
 use Modules\Base\Entities\User\Traits\UserAccess;
 use App\User as Authenticatable;
@@ -15,10 +16,10 @@ use Modules\Base\Entities\User\Traits\Relationship\UserRelationship;
 class User extends Authenticatable
 {
 
-    use UserAccess, UserAttribute, UserRelationship, HasApiTokens;
+    use SoftDeletes, UserAccess, UserAttribute, UserRelationship, HasApiTokens;
 
     /**
      * @var array
      */
-    //protected $dates = ['deleted_at'];
+    protected $dates = ['deleted_at'];
 }

@@ -23,6 +23,35 @@ abstract class EloquentBaseRepository implements BaseRepository
         $this->model = $model;
     }
 
+
+    /**
+     * @param string $name_column
+     * @param string $id_column
+     * @return mixed
+     */
+    public function getList($name_column = 'name', $id_column = 'id') {
+        return $this->model->lists($name_column, $id_column);
+    }
+
+    /**
+     * @param $object
+     * @param $item
+     * @param array $object_ids
+     * @return $this
+     */
+    public function attachObject($object, $item, $object_ids = []) {
+        $method = 'attach'.ucfirst($object);
+
+        if(method_exists($this, $method)) {
+            $this->{$method}($item, $object_ids);
+        }
+        else {
+            $item->{$object}()->sync($object_ids, true);
+        }
+
+        return $this;
+    }
+
     /**
      * @param  int    $id
      * @return object
@@ -41,6 +70,14 @@ abstract class EloquentBaseRepository implements BaseRepository
     public function all()
     {
         return $this->model->orderBy('created_at', 'DESC')->get();
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function listAll()
+    {
+        return $this->model->pluck('name', 'id')->all();
     }
 
     /**

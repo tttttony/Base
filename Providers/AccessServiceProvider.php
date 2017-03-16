@@ -30,12 +30,8 @@ class AccessServiceProvider extends ServiceProvider
     {
         $this->registerBladeExtensions();
 
-        $router->aliasMiddleware('auth', Authenticate::class);
-
-        //TODO: Move this into a Auth Service Provider
-        Passport::routes();
-        Passport::tokensExpireIn(Carbon::now()->addDays(15));
-        Passport::refreshTokensExpireIn(Carbon::now()->addDays(30));
+        $router->aliasMiddleware('access.routeNeedsRole', \Modules\Base\Http\Middleware\RouteNeedsRole::class);
+        $router->aliasMiddleware('access.routeNeedsPermission', \Modules\Base\Http\Middleware\RouteNeedsPermission::class);
     }
 
     /**
@@ -82,7 +78,7 @@ class AccessServiceProvider extends ServiceProvider
     {
         $this->app->bind(
             \Modules\Base\Repositories\UserRepository::class,
-            \Modules\Users\Repositories\Eloquent\EloquentUserRepository::class
+            \Modules\Base\Repositories\Eloquent\EloquentUserRepository::class
         );
 
         $this->app->bind(
@@ -153,7 +149,7 @@ class AccessServiceProvider extends ServiceProvider
          * Accepts array of names or id's
          */
         Blade::directive('permissions', function ($permissions) {
-            return "<?php if (access()->allowMultiple{$permissions}): ?>";
+            return "<?php if (access()->allowMultiple({$permissions})): ?>";
         });
 
         Blade::directive('needspermissions', function ($permissions) {
