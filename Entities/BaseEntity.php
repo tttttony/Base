@@ -1,6 +1,7 @@
 <?php namespace Modules\Base\Entities;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class BaseEntity extends Model
 {
@@ -13,7 +14,7 @@ class BaseEntity extends Model
      * @param array $values
      * @param string $id_column
      */
-    public function sync($relationship, $column, array $values, $id_column = 'id')
+    public function sync($relationship, array $values, $id_column = 'id')
     {
         $new_values = array_filter($values);
         array_walk($new_values, function(&$item, $key){
@@ -27,17 +28,14 @@ class BaseEntity extends Model
         $add = array_diff($new_values, $old_values);
 
         //remove
-        $this->$relationship()->whereIn($id_column, $remove)->each(function($item, $key) use ($column) {
+        $column = $this->$relationship()->getQualifiedForeignKeyName();
+        $this->$relationship()->whereIn($id_column, $remove)->each(function($item) use ($column) {
             $item->$column = null;
             $item->save();
         });
 
         //add
-        $new = [];
-        foreach($add as $id){
-            $new[] = $this->$relationship()->getModel()->find($id);
-        }
-        $this->$relationship()->saveMany($new);
+        $this->$relationship()->saveMany($this->$relationship()->getModel()->findMany($add));
 
         return [
             'kept' => $keep,
@@ -45,5 +43,4 @@ class BaseEntity extends Model
             'added' => $add
         ];
     }
-
 }

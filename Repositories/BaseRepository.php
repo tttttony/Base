@@ -28,6 +28,7 @@ interface BaseRepository
      */
     public function create($data);
 
+    public function attachObject($object, $item, $object_ids = []);
     /**
      * Update a resource
      * @param $model
@@ -51,27 +52,11 @@ interface BaseRepository
     public function findBySlug($slug);
 
     /**
-     * Find a resource by an array of attributes
-     * @param  array $attributes
-     * @return object
-     */
-    public function findByAttributes(array $attributes);
-
-    /**
      * Return a collection of elements who's ids match
      * @param array $ids
      * @return mixed
      */
     public function findByMany(array $ids);
-
-    /**
-     * Get resources by an array of attributes
-     * @param array $attributes
-     * @param null|string $orderBy
-     * @param string $sortOrder
-     * @return \Illuminate\Database\Eloquent\Collection
-     */
-    public function getByAttributes(array $attributes, $orderBy = null, $sortOrder = 'asc');
 
     /**
      * Clear the cache for this Repositories' Entity

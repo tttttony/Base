@@ -1,7 +1,9 @@
 <?php namespace Modules\Base\Repositories\Eloquent;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Modules\Base\Entities\Traits\Filterable;
 use Modules\Base\Exceptions\GeneralException;
-use Illuminate\Database\Eloquent\Builder;
 use Modules\Base\Repositories\BaseRepository;
 /**
  * Class EloquentBaseRepository
@@ -10,10 +12,16 @@ use Modules\Base\Repositories\BaseRepository;
  */
 abstract class EloquentBaseRepository implements BaseRepository
 {
+    use Filterable;
+
     /**
      * @var \Illuminate\Database\Eloquent\Model An instance of the Eloquent Model
      */
     protected $model;
+
+    //TODO: DESC and ASC should be constants
+    protected $sortBy = 'id';
+    protected $sortOrder = "DESC";
 
     /**
      * @param Model $model
@@ -21,16 +29,21 @@ abstract class EloquentBaseRepository implements BaseRepository
     public function __construct($model)
     {
         $this->model = $model;
+        $this->validFilterableFields = [
+            'slug', 'name', 'active'
+        ];
     }
 
+    public function query() {
+        return $this->model->query();
+    }
 
-    /**
-     * @param string $name_column
-     * @param string $id_column
-     * @return mixed
-     */
-    public function getList($name_column = 'name', $id_column = 'id') {
-        return $this->model->lists($name_column, $id_column);
+    protected function filterAndSort($query) {
+        return $this->applySortToQuery($this->applyFiltersToQuery($query));
+    }
+
+    protected function applySortToQuery($query) {
+        return $query->orderBy($this->sortBy, $this->sortOrder);
     }
 
     /**
@@ -46,7 +59,10 @@ abstract class EloquentBaseRepository implements BaseRepository
             $this->{$method}($item, $object_ids);
         }
         else {
-            $item->{$object}()->sync($object_ids, true);
+            if(method_exists($item->{$object}(), 'sync'))
+                $item->{$object}()->sync($object_ids, true);
+            else
+                $item->sync($object, $object_ids);
         }
 
         return $this;
@@ -58,7 +74,7 @@ abstract class EloquentBaseRepository implements BaseRepository
      */
     public function find($id)
     {
-        if($item = $this->model->find($id)) {
+        if($item = $this->filterAndSort($this->query())->find($id)) {
             return $item;
         }
         throw new GeneralException(trans('Unexpected Error: Item not found.'));
@@ -69,15 +85,15 @@ abstract class EloquentBaseRepository implements BaseRepository
      */
     public function all()
     {
-        return $this->model->orderBy('created_at', 'DESC')->get();
+        return $this->filterAndSort($this->query())->get();
     }
 
     /**
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function listAll()
+    public function listAll($name_column = 'name', $id_column = 'id')
     {
-        return $this->model->pluck('name', 'id')->all();
+        return $this->filterAndSort($this->query())->pluck($name_column, $id_column)->all();
     }
 
     /**
@@ -85,7 +101,7 @@ abstract class EloquentBaseRepository implements BaseRepository
      */
     public function paginate($perPage = 100)
     {
-        return $this->model->orderBy('created_at', 'DESC')->paginate($perPage);
+        return $this->filterAndSort($this->query())->paginate($perPage);
     }
 
     /**
@@ -128,50 +144,10 @@ abstract class EloquentBaseRepository implements BaseRepository
      */
     public function findBySlug($slug)
     {
-        return $this->model->where('slug', $slug)->first();
+        $this->addFilter('slug', $slug);
+        return $this->filterAndSort($this->query())->first();
     }
 
-    /**
-     * Find a resource by an array of attributes
-     * @param  array  $attributes
-     * @return object
-     */
-    public function findByAttributes(array $attributes)
-    {
-        $query = $this->buildQueryByAttributes($attributes);
-        return $query->first();
-    }
-
-    /**
-     * Get resources by an array of attributes
-     * @param array $attributes
-     * @param null|string $orderBy
-     * @param string $sortOrder
-     * @return \Illuminate\Database\Eloquent\Collection
-     */
-    public function getByAttributes(array $attributes, $orderBy = null, $sortOrder = 'asc')
-    {
-        $query = $this->buildQueryByAttributes($attributes, $orderBy, $sortOrder);
-        return $query->get();
-    }
-    /**
-     * Build Query to catch resources by an array of attributes and params
-     * @param array $attributes
-     * @param null|string $orderBy
-     * @param string $sortOrder
-     * @return \Illuminate\Database\Query\Builder object
-     */
-    private function buildQueryByAttributes(array $attributes, $orderBy = null, $sortOrder = 'asc')
-    {
-        $query = $this->model->query();
-        foreach ($attributes as $field => $value) {
-            $query = $query->where($field, $value);
-        }
-        if (null !== $orderBy) {
-            $query->orderBy($orderBy, $sortOrder);
-        }
-        return $query;
-    }
     /**
      * Return a collection of elements who's ids match
      * @param array $ids
@@ -179,8 +155,8 @@ abstract class EloquentBaseRepository implements BaseRepository
      */
     public function findByMany(array $ids)
     {
-        $query = $this->model->query();
-        return $query->whereIn("id", $ids)->get();
+        $this->addFilter('id', 'in', $ids);
+        return $this->filterAndSort($this->query())->get();
     }
     /**
      * Clear the cache for this Repositories' Entity

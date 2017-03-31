@@ -40,9 +40,7 @@ Route::group(['middleware' => 'auth'], function () {
 });
 
 
-Route::group([
-    'middleware' => 'access.routeNeedsPermission:view-access-management'
-], function() {
+Route::group(['middleware' => 'access.routeNeedsPermission:view-access-management'], function() {
     /**
      * User Management
      */

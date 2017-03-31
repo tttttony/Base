@@ -107,10 +107,10 @@ trait AuthenticatesUsers
         if (! access()->user()->isConfirmed()) {
             $token = access()->user()->confirmation_code;
             auth()->logout();
-            throw new GeneralException(trans('exceptions.frontend.auth.confirmation.resend', ['token' => $token]));
+            throw new GeneralException(trans('exceptions.auth.confirmation.resend', ['token' => $token]));
         } elseif (! access()->user()->isActive()) {
             auth()->logout();
-            throw new GeneralException(trans('exceptions.frontend.auth.deactivated'));
+            throw new GeneralException(trans('exceptions.auth.deactivated'));
         }
 
         event(new UserLoggedIn(access()->user()));

@@ -40,7 +40,10 @@ class BaseServiceProvider extends ServiceProvider {
 
 	private function registerBindings()
 	{
-
+        $this->app->bind(
+            \Modules\Base\Services\UserServiceContract::class,
+            \Modules\Base\Services\UserService::class
+        );
 	}
 
 	/**

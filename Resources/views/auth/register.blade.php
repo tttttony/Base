@@ -2,15 +2,15 @@
 
 @section('content')
 <div class="row">
-    <div class="col-xs-12 col-sm-6 col-sm-offset-3 col-lg-4 col-lg-offset-4">
+    <div class="col-sm-12 col-md-6 col-md-offset-3 col-xl-4 col-xl-offset-4">
 
-        <div class="panel panel-default register">
-            <div class="panel-heading text-center">
+        <div class="card panel-default register">
+            <div class="card-heading text-center">
                 <div class="title">My Baby Lock Profile</div>
                 <div class="subtitle">Join Baby Lock</div>
             </div>
 
-            <div class="panel-body">
+            <div class="card-block">
 
                 {!! Form::open(['url' => 'register']) !!}
 
@@ -33,7 +33,7 @@
 
         </div><!-- panel -->
 
-    </div><!-- col-sm-4 -->
+    </div><!-- col-md-4 -->
 
 </div><!-- row -->
 @endsection

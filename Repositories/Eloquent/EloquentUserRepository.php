@@ -50,16 +50,16 @@ class EloquentUserRepository extends EloquentBaseRepository implements UserRepos
     public function findOrThrowException($id, $withRoles = false)
     {
         if ($withRoles) {
-            $user = User::with('addresses', 'profile', 'roles')->withTrashed()->find($id);
+            $user = User::with('roles')->withTrashed()->find($id);
         } else {
-            $user = User::with('addresses', 'profile')->withTrashed()->find($id);
+            $user = User::with()->withTrashed()->find($id);
         }
 
         if (!is_null($user)) {
             return $user;
         }
 
-        throw new GeneralException(trans('exceptions.backend.access.users.not_found'));
+        throw new GeneralException(trans('exceptions.access.users.not_found'));
     }
 
     /**
@@ -108,7 +108,7 @@ class EloquentUserRepository extends EloquentBaseRepository implements UserRepos
         $user = $this->user->where('email', $email)->first();
 
         if (! $user instanceof User)
-            throw new GeneralException(trans('exceptions.frontend.auth.confirmation.not_found'));
+            throw new GeneralException(trans('exceptions.auth.confirmation.not_found'));
 
         return $user;
     }
@@ -122,7 +122,7 @@ class EloquentUserRepository extends EloquentBaseRepository implements UserRepos
         $user = $this->user->where('confirmation_code', $token)->first();
 
         if (! $user instanceof User)
-            throw new GeneralException(trans('exceptions.frontend.auth.confirmation.not_found'));
+            throw new GeneralException(trans('exceptions.auth.confirmation.not_found'));
 
         return $user;
     }
@@ -139,7 +139,8 @@ class EloquentUserRepository extends EloquentBaseRepository implements UserRepos
          */
         if ($provider) {
             $user = $this->user->create([
-                'username' => $data['email'],
+                'name' => $data['name'],
+                'username' => $data['username'],
                 'email' => $data['email'],
                 'password' => null,
                 'confirmation_code' => md5(uniqid(mt_rand(), true)),
@@ -147,14 +148,19 @@ class EloquentUserRepository extends EloquentBaseRepository implements UserRepos
                 'status' => 1,
             ]);
         } else {
-            $user =$this->user->create([
-                'username' => $data['email'],
-                'email' => $data['email'],
-                'password' => bcrypt($data['password']),
-                'confirmation_code' => md5(uniqid(mt_rand(), true)),
-                'confirmed' => config('access.users.confirm_email') ? 0 : 1,
-                'status' => 1,
-            ]);
+            $user = new \Modules\Users\Entities\User();
+            $user->fill($data)->save();
+//
+//            $user = $this->user->create([
+//                'name' => $data['name'],
+//                'username' => $data['email'],
+//                'email' => $data['email'],
+//                'password' => bcrypt($data['password']),
+//                'confirmation_code' => md5(uniqid(mt_rand(), true)),
+//                'confirmed' => config('access.users.confirm_email') ? 0 : 1,
+//                'status' => 1,
+//            ]);
+//            dd($user);
         }
 
         /**
@@ -221,7 +227,7 @@ class EloquentUserRepository extends EloquentBaseRepository implements UserRepos
         $user = $this->findByToken($token);
 
         if ($user->confirmed == 1) {
-            throw new GeneralException(trans('exceptions.frontend.auth.confirmation.already_confirmed'));
+            throw new GeneralException(trans('exceptions.auth.confirmation.already_confirmed'));
         }
 
         if ($user->confirmation_code == $token) {
@@ -229,7 +235,7 @@ class EloquentUserRepository extends EloquentBaseRepository implements UserRepos
             return $user->save();
         }
 
-        throw new GeneralException(trans('exceptions.frontend.auth.confirmation.mismatch'));
+        throw new GeneralException(trans('exceptions.auth.confirmation.mismatch'));
     }
 
     /**
@@ -266,13 +272,27 @@ class EloquentUserRepository extends EloquentBaseRepository implements UserRepos
     public function update($id, $input)
     {
         $user = $this->find($id);
+        $user->fill($input)->save();
+        return $user;
+    }
+
+
+    /**
+     * @param $id
+     * @param $input
+     * @return mixed
+     * @throws GeneralException
+     */
+    public function changeEmail($id, $input)
+    {
+        $user = $this->find($id);
 
         if ($user->canChangeEmail()) {
             //Address is not current address
             if ($user->email != $input['email']) {
                 //Emails have to be unique
                 if ($this->findByEmail($input['email'])) {
-                    throw new GeneralException(trans('exceptions.frontend.auth.email_taken'));
+                    throw new GeneralException(trans('exceptions.auth.email_taken'));
                 }
 
                 $user->email = $input['email'];
@@ -298,7 +318,7 @@ class EloquentUserRepository extends EloquentBaseRepository implements UserRepos
             return $user->save();
         }
 
-        throw new GeneralException(trans('exceptions.frontend.auth.password.change_mismatch'));
+        throw new GeneralException(trans('exceptions.auth.password.change_mismatch'));
     }
 
 }

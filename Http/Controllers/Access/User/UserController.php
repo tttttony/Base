@@ -1,17 +1,12 @@
 <?php namespace Modules\Base\Http\Controllers\Access\User;
 
 use DB;
-use Event;
 use Modules\Base\Http\Controllers\Controller;
-use Modules\Base\Listeners\User\LogUserCreated;
-use Modules\Base\Events\User\CreatedUserSuccessfully;
-use Modules\Base\Events\User\UpdatedUserSuccessfully;
 
 use Modules\Base\Repositories\PermissionGroupRepository;
 use Modules\Base\Repositories\UserRepository;
 use Modules\Base\Repositories\RoleRepository;
 use Modules\Base\Repositories\PermissionRepository;
-#use Modules\Base\Repositories\Frontend\User\User as FrontendUser;
 
 use Modules\Base\Http\Requests\Access\User\CreateUserRequest;
 use Modules\Base\Http\Requests\Access\User\StoreUserRequest;
@@ -23,11 +18,8 @@ use Modules\Base\Http\Requests\Access\User\RestoreUserRequest;
 use Modules\Base\Http\Requests\Access\User\ChangeUserPasswordRequest;
 use Modules\Base\Http\Requests\Access\User\UpdateUserPasswordRequest;
 use Modules\Base\Http\Requests\Access\User\PermanentlyDeleteUserRequest;
-use Modules\Base\Http\Requests\Access\User\ResendConfirmationEmailRequest;
+use Modules\Base\Services\UserServiceContract;
 
-
-use Illuminate\Support\Facades\Session;
-use Mockery\CountValidator\Exception;
 #use Modules\Addresses\Entities\Address;
 #use Modules\Users\Entities\UserProfile;
 
@@ -42,6 +34,11 @@ class UserController extends Controller
     protected $users;
 
     /**
+     * @var UserService
+     */
+    protected $userService;
+
+    /**
      * @var RoleRepository
      */
     protected $roles;
@@ -50,6 +47,8 @@ class UserController extends Controller
      * @var PermissionRepository
      */
     protected $permissions;
+
+    protected $groups;
 
     /**
      * @param UserRepository                 $users
@@ -60,13 +59,15 @@ class UserController extends Controller
         UserRepository $users,
         RoleRepository $roles,
         PermissionRepository $permissions,
-        PermissionGroupRepository $groups
+        PermissionGroupRepository $groups,
+        UserServiceContract $userService
     )
     {
-        $this->users       = $users;
-        $this->roles       = $roles;
-        $this->permissions = $permissions;
-        $this->groups      = $groups;
+        $this->users        = $users;
+        $this->roles        = $roles;
+        $this->permissions  = $permissions;
+        $this->groups       = $groups;
+        $this->userService  = $userService;
     }
 
     /**
@@ -95,22 +96,24 @@ class UserController extends Controller
      */
     public function store(StoreUserRequest $request)
     {
-        DB::beginTransaction();
-        try {
-            $user = $this->users->create(
-                $request->except(['assignees_roles', 'permission_user']),
-                $request->only('assignees_roles'),
-                $request->only('permission_user')
-            );
-
-            DB::commit();
-            Event::fire(new CreatedUserSuccessfully($user));
-        }
-        catch (Exception $e) {
-            DB::rollback();
-        }
-
-        return redirect()->route('admin.access.users.index')->withFlashSuccess(trans('alerts.backend.users.created'));
+//        DB::beginTransaction();
+//        try {
+//            $user = $this->users->create(
+//                $request->except(['assignees_roles', 'permission_user']),
+//                $request->only('assignees_roles'),
+//                $request->only('permission_user')
+//            );
+//
+//            DB::commit();
+//            Event::fire(new CreatedUserSuccessfully($user));
+//        }
+//        catch (Exception $e) {
+//            DB::rollback();
+//        }
+//
+        $this->userService->createUser($request->all());
+		flash(trans('alerts.users.created'), 'success');
+        return redirect()->route('admin.access.users.index');
     }
 
     /**
@@ -137,29 +140,25 @@ class UserController extends Controller
      */
     public function update($id, UpdateUserRequest $request)
     {
-        DB::beginTransaction();
-        try {
-            $user = $this->users->update($id,
-                $request->except(['assignees_roles', 'permission_user', 'profile', 'address']),
-                $request->only('assignees_roles'),
-                $request->only('permission_user')
-            );
-
-//            if($user->profile) {
-//                $user->profile->fill($request->only('profile')['profile'])->save();
-//            }
-//            else {
-//                $user->profile()->create($request->only('profile')['profile']);
-//            }
-
-            DB::commit();
-            Event::fire(new UpdatedUserSuccessfully($user));
-        }
-        catch (Exception $e) {
-            DB::rollback();
-        }
-
-        return redirect()->route('admin.access.users.index')->withFlashSuccess(trans('alerts.backend.users.updated'));
+//        DB::transaction(function () {
+//            $user = $this->users->update($id,
+//                $request->except(['assignees_roles', 'permission_user', 'profile', 'address']),
+//                $request->only('assignees_roles'),
+//                $request->only('permission_user')
+//            );
+//
+////            if($user->profile) {
+////                $user->profile->fill($request->only('profile')['profile'])->save();
+////            }
+////            else {
+////                $user->profile()->create($request->only('profile')['profile']);
+////            }
+//
+//            Event::fire(new UpdatedUserSuccessfully($user));
+//        });
+        $this->userService->updateUser($id, $request->all());
+		flash(trans('alerts.users.updated'), 'success');
+        return redirect()->route('admin.access.users.index');
     }
 
     /**
@@ -170,7 +169,8 @@ class UserController extends Controller
     public function destroy($id, DeleteUserRequest $request)
     {
         $this->users->destroy($id);
-        return redirect()->back()->withFlashSuccess(trans('alerts.backend.users.deleted'));
+		flash(trans('alerts.users.deleted'), 'success');
+        return redirect()->back();
     }
 
     /**
@@ -181,7 +181,8 @@ class UserController extends Controller
     public function delete($id, PermanentlyDeleteUserRequest $request)
     {
         $this->users->delete($id);
-        return redirect()->back()->withFlashSuccess(trans('alerts.backend.users.deleted_permanently'));
+		flash(trans('alerts.users.deleted_permanently'), 'success');
+        return redirect()->back();
     }
 
     /**
@@ -192,7 +193,8 @@ class UserController extends Controller
     public function restore($id, RestoreUserRequest $request)
     {
         $this->users->restore($id);
-        return redirect()->back()->withFlashSuccess(trans('alerts.backend.users.restored'));
+		flash(trans('alerts.users.restored'), 'success');
+        return redirect()->back();
     }
 
     /**
@@ -204,7 +206,8 @@ class UserController extends Controller
     public function mark($id, $status, MarkUserRequest $request)
     {
         $this->users->mark($id, $status);
-        return redirect()->back()->withFlashSuccess(trans('alerts.backend.users.updated'));
+		flash(trans('alerts.users.updated'), 'success');
+        return redirect()->back();
     }
 
     /**
@@ -244,7 +247,8 @@ class UserController extends Controller
     public function updatePassword($id, UpdateUserPasswordRequest $request)
     {
         $this->users->updatePassword($id, $request->all());
-        return redirect()->route('admin.access.users.index')->withFlashSuccess(trans('alerts.backend.users.updated_password'));
+		flash(trans('alerts.users.updated_password'), 'success');
+        return redirect()->route('admin.access.users.index');
     }
 
 //    /**
@@ -256,6 +260,7 @@ class UserController extends Controller
 //    public function resendConfirmationEmail($user_id, FrontendUserContract $user, ResendConfirmationEmailRequest $request)
 //    {
 //        $user->sendConfirmationEmail($user_id);
-//        return redirect()->back()->withFlashSuccess(trans('alerts.backend.users.confirmation_email'));
+//		flash(trans('alerts.backend.users.confirmation_email'), 'success');
+//        return redirect()->back();
 //    }
 }

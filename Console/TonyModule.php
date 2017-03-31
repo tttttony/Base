@@ -310,19 +310,15 @@ EOD;
 	{
 		$lower_module = strtolower($this->module);
 		return <<<EOD
-@permission('{$lower_module}.view-management')
-<li class="{{ Active::checkUriPattern('{$lower_module}/*') }} treeview">
-    <a href="#">
-    {{ trans('{$lower_module}::lang.uppercase.{$lower_module}') }}
-    <i class="fa fa-angle-left pull-right"></i>
-    </a>
-    <ul class="treeview-menu {{ Active::checkUriPattern('{$lower_module}*', 'menu-open') }}" style="display: none; {{ Active::checkUriPattern('{$lower_module}*', 'display: block;') }}">
+@include('partials.menu-item',
+[
+    'icon' => '<i class="fa fa-circle"></i>',
+    'permission' => '{$lower_module}.view-management',
+    'title' => __('{$lower_module}::lang.uppercase.{$lower_module}'),
+    'links' => [
 
-		{{-- object sidebar file go here --}}
-
-    </ul>
-</li>
-@endauth
+    ]
+])
 EOD;
 
 	}

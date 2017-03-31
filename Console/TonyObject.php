@@ -555,11 +555,11 @@ EOD;
         $lower_object_plural = strtolower($this->object_plural);
 
         return <<<EOD
-@permission('{$lower_module}.view-{$lower_object_plural}-management')
-    <li class="{{ Active::checkUriPattern('{$lower_module}/{$lower_object_plural}*') }}">
-        <a href="{!! route('admin.{$lower_module}.{$lower_object_plural}.index') !!}"><span>{{ trans('{$lower_module}::{$lower_object}.uppercase.{$lower_object_plural}') }}</span></a>
-    </li>
-@endauth
+return [
+    'permission' => '{$lower_module}.view-{$lower_object_plural}-management',
+    'route' => 'admin.{$lower_module}.{$lower_object_plural}.index',
+    'title' => __('{$lower_module}::{$lower_object}.uppercase.{$lower_object_plural}'),
+];
 EOD;
     }
 
@@ -570,43 +570,35 @@ EOD;
         $lower_object_plural = strtolower($this->object_plural);
 
         return <<<EOD
-@extends('{$lower_module}::layouts.master')
+@extends('pages.default')
 
-@section ('title', trans('{$lower_module}::titles.create-{$lower_object}'))
+@section ('title', __('{$lower_module}::titles.create-{$lower_object}'))
 
 @section('page-header')
-    <h1>{{ trans('buttons.general.crud.create') }} {{ trans('{$lower_module}::{$lower_object}.uppercase.{$lower_object}') }}</h1>
+    {{ __('{$lower_module}::titles.create-{$lower_object}') }}
+@endsection
+
+@section('breadcrumb')
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ URL::route('admin.dashboard') }}">Home</a></li>
+        <li class="breadcrumb-item"><a href="{{ URL::route('admin.{$lower_module}.{$lower_object_plural}.index') }}">{{ __('{$lower_module}::{$lower_object}.uppercase.{$lower_object_plural}') }}</a></li>
+        <li class="breadcrumb-item active">{{ __('buttons.general.crud.create') }}</li>
+    </ol>
+@endsection
+
+@section('page-actions')
+    <a href="{{ route('admin.{$lower_module}.{$lower_object_plural}.index') }}" class="btn btn-white" role="button">{{ __('buttons.general.cancel') }}</a>
+    <button class="btn btn-primary" type="submit" form="{$lower_object_plural}_form">{{ __('buttons.general.crud.create') }}</button>
 @endsection
 
 @section('content')
-    {!! Form::open(['route' => ['admin.{$lower_module}.{$lower_object_plural}.store'], 'class' => 'form-horizontal']) !!}
-
-    <div class="box box-success">
-        <div class="box-header with-border">
-            <h3 class="box-title">{{ trans('buttons.general.crud.create') }} <small>{{ trans('{$lower_module}::{$lower_object}.uppercase.new-{$lower_object}') }}</small></h3>
-        </div><!-- /.box-header -->
-
-        <div class="box-body">
-            <div class="col-lg-12">
-                @include('{$lower_module}::{$lower_object_plural}.form')
-            </div>
-        </div><!-- /.box-body -->
-    </div><!--box-->
-
-    <div class="box box-success">
-        <div class="box-body">
-            <div class="pull-left">
-                <a href="{{ route('admin.{$lower_module}.{$lower_object_plural}.index') }}" class="btn btn-danger btn-xs">{{ trans('buttons.general.cancel') }}</a>
-            </div>
-
-            <div class="pull-right">
-                <input type="submit" class="btn btn-success btn-xs" value="{{ trans('buttons.general.crud.create') }}" />
-            </div>
-            <div class="clearfix"></div>
-        </div><!-- /.box-body -->
-    </div><!--box-->
-
-    {!! Form::close() !!}
+    <div class="card panel-default">
+        <div class="card-block">
+            {!! Form::open(['route' => ['admin.{$lower_module}.{$lower_object_plural}.store'], 'id' => '{$lower_object_plural}_form']) !!}
+            @include('{$lower_module}::{$lower_object_plural}.form')
+            {!! Form::close() !!}
+        </div>
+    </div>
 @stop
 EOD;
     }
@@ -618,43 +610,35 @@ EOD;
         $lower_object_plural = strtolower($this->object_plural);
 
         return <<<EOD
-@extends('{$lower_module}::layouts.master')
+@extends('pages.default')
 
 @section ('title', trans('{$lower_module}::titles.edit-{$lower_object}'))
 
 @section('page-header')
-    <h1>{{ trans('buttons.general.crud.update') }} {{ trans('{$lower_module}::{$lower_object}.uppercase.{$lower_object}') }}</h1>
+    {{ __('buttons.general.crud.update') }} {{ __('{$lower_module}::{$lower_object}.uppercase.{$lower_object}') }}
+@endsection
+
+@section('breadcrumb')
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ URL::route('admin.dashboard') }}">Home</a></li>
+        <li class="breadcrumb-item"><a href="{{ URL::route('admin.{$lower_module}.{$lower_object_plural}.index') }}">{{ __('{$lower_module}::{$lower_object}.uppercase.{$lower_object_plural}') }}</a></li>
+        <li class="breadcrumb-item active">{{ \${$lower_object}->name }}</li>
+    </ol>
+@endsection
+
+@section('page-actions')
+    <a href="{{ route('admin.{$lower_module}.{$lower_object_plural}.index') }}" class="btn btn-white" role="button">{{ __('buttons.general.cancel') }}</a>
+    <button class="btn btn-primary" type="submit" form="{$lower_object_plural}_form">{{ __('buttons.general.crud.update') }}</button>
 @endsection
 
 @section('content')
-    {!! Form::model(\${$lower_object}, ['route' => ['admin.{$lower_module}.{$lower_object_plural}.update', \${$lower_object}->id], 'class' => 'form-horizontal', 'role' => 'form', 'method' => 'PATCH']) !!}
-
-    <div class="box box-success">
-        <div class="box-header with-border">
-            <h3 class="box-title">{{ trans('buttons.general.crud.edit') }} <small>{{ \${$lower_object}->name }}</small></h3>
-        </div><!-- /.box-header -->
-
-        <div class="box-body">
-            <div class="col-lg-12">
+    <div class="card panel-default">
+        <div class="card-block">
+            {!! Form::model(\${$lower_object}, ['route' => ['admin.{$lower_module}.{$lower_object_plural}.update', \${$lower_object}->id], 'id' => '{$lower_object_plural}_form', 'role' => 'form', 'method' => 'PATCH']) !!}
                 @include('{$lower_module}::{$lower_object_plural}.form')
-            </div>
-        </div><!-- /.box-body -->
-    </div><!--box-->
-
-    <div class="box box-success">
-        <div class="box-body">
-            <div class="pull-left">
-                <a href="{{ route('admin.{$lower_module}.{$lower_object_plural}.index') }}" class="btn btn-danger btn-xs">{{ trans('buttons.general.cancel') }}</a>
-            </div>
-
-            <div class="pull-right">
-                <input type="submit" class="btn btn-success btn-xs" value="{{ trans('buttons.general.crud.update') }}" />
-            </div>
-            <div class="clearfix"></div>
-        </div><!-- /.box-body -->
-    </div><!--box-->
-
-    {!! Form::close() !!}
+            {!! Form::close() !!}
+        </div>
+    </div>
 @stop
 EOD;
     }
@@ -666,7 +650,7 @@ EOD;
 
         return <<<EOD
 <div class="form-group">
-    {!! Form::label('name', trans('{$lower_module}::{$lower_object}.form.labels.name'), ['class' => 'control-label']) !!}
+    {!! Form::label('name', trans('{$lower_module}::{$lower_object}.form.labels.name'), ['class' => 'form-control-label']) !!}
     <div class="control-input">
         {!! Form::text('name', null, ['class' => 'form-control', 'placeholder' => trans('{$lower_module}::{$lower_object}.form.placeholders.name')]) !!}
     </div>
@@ -681,31 +665,38 @@ EOD;
         $lower_object_plural = strtolower($this->object_plural);
 
         return <<<EOD
-@extends('{$lower_module}::layouts.master')
+@extends('pages.default')
 
-@section ('title', trans('labels.backend.access.users.management'))
+@section ('title', __('{$lower_module}::{$lower_object}.uppercase.{$lower_object}-management'))
 
 @section('page-header')
-	<h1>{{ trans('{$lower_module}::{$lower_object}.uppercase.{$lower_object}-management') }}</h1>
+	{{ __('{$lower_module}::{$lower_object}.uppercase.{$lower_object}-management') }}
+@endsection
+
+@section('page-actions')
+	@permission('{$lower_module}.{$lower_object_plural}.add')
+	<a href="{{ URL::route('admin.{$lower_module}.{$lower_object_plural}.create') }}" class="btn btn-primary">
+        <i class="fa fa-plus"></i>
+    </a>
+	@endauth
 @endsection
 
 @section('content')
-	<div>
-		@permission('{$lower_module}.{$lower_object_plural}.add')
-			{{ link_to_route('admin.{$lower_module}.{$lower_object_plural}.create', "+", null, []) }}
-		@endauth
+	<div class="card panel-default">
+		<div class="card-block">
+			@include('base::items', [
+				'items' => \${$lower_object_plural},
+				'label' => __('{$lower_module}::{$lower_object}.{$lower_object_plural}'),
+			    'cols' => [
+					['header'=>'Name', 'attribute'=>'name']
+				],
+				'actions' => [
+					['route'=> 'admin.{$lower_module}.{$lower_object_plural}.edit', 'title' => 'Edit', 'icon' => 'pencil', 'attributes' => [ 'class' => 'btn btn-sm btn-primary' ], 'permission' => '{$lower_module}.{$lower_object_plural}.edit'],
+					['route'=> 'admin.{$lower_module}.{$lower_object_plural}.destroy', 'title' => 'Delete', 'icon' => 'trash-o', 'attributes' => ['data-method'=>"delete", 'class' => 'btn btn-sm btn-danger' ], 'permission' => '{$lower_module}.{$lower_object_plural}.delete']
+				]
+			])
+		</div>
 	</div>
-	@include('base::items', [
-		'items' => \${$lower_object_plural},
-		'label' => trans('{$lower_module}::{$lower_object}.{$lower_object_plural}'),
-	 	'cols' => [
-			['header'=>'Name', 'attribute'=>'name']
-		],
-		'actions' => [
-			['route'=> 'admin.{$lower_module}.{$lower_object_plural}.edit', 'title' => 'Edit', 'attributes' => [], 'permission' => '{$lower_module}.{$lower_object_plural}.edit'],
-			['route'=> 'admin.{$lower_module}.{$lower_object_plural}.destroy', 'title' => 'Delete', 'attributes' => ['data-method'=>"delete", 'class' => 'btn btn-xs btn-danger' ], 'permission' => '{$this->module}.{$this->object_plural}.delete']
-		]
-	])
 @stop
 EOD;
     }

@@ -22,4 +22,10 @@ class User extends Authenticatable
      * @var array
      */
     protected $dates = ['deleted_at'];
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->fillable[] = 'username';
+    }
 }

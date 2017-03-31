@@ -3,31 +3,31 @@
 @section('content')
     <div class="row">
 
-        <div class="col-md-10 col-md-offset-1">
+        <div class="col-lg-10 col-lg-offset-1">
 
-            <div class="panel panel-default">
-                <div class="panel-heading">{{ trans('labels.frontend.user.passwords.change') }}</div>
+            <div class="card panel-default">
+                <div class="card-heading">{{ trans('labels.frontend.user.passwords.change') }}</div>
 
-                <div class="panel-body">
+                <div class="card-block">
 
                     {!! Form::open(['route' => ['auth.password.update']]) !!}
 
                         <div class="form-group">
-                            {!! Form::label('old_password', trans('validation.attributes.frontend.old_password'), ['class' => 'control-label']) !!}
+                            {!! Form::label('old_password', trans('validation.attributes.frontend.old_password'), ['class' => 'form-control-label']) !!}
                             <div class="control-input">
                                 {!! Form::input('password', 'old_password', null, ['class' => 'form-control', 'placeholder' => trans('validation.attributes.frontend.old_password')]) !!}
                             </div>
                         </div>
 
                         <div class="form-group">
-                            {!! Form::label('password', trans('validation.attributes.frontend.new_password'), ['class' => 'control-label']) !!}
+                            {!! Form::label('password', trans('validation.attributes.frontend.new_password'), ['class' => 'form-control-label']) !!}
                             <div class="control-input">
                                 {!! Form::input('password', 'password', null, ['class' => 'form-control', 'placeholder' => trans('validation.attributes.frontend.new_password')]) !!}
                             </div>
                         </div>
 
                         <div class="form-group">
-                            {!! Form::label('password_confirmation', trans('validation.attributes.frontend.new_password_confirmation'), ['class' => 'control-label']) !!}
+                            {!! Form::label('password_confirmation', trans('validation.attributes.frontend.new_password_confirmation'), ['class' => 'form-control-label']) !!}
                             <div class="control-input">
                                 {!! Form::input('password', 'password_confirmation', null, ['class' => 'form-control', 'placeholder' => trans('validation.attributes.frontend.new_password_confirmation')]) !!}
                             </div>
@@ -45,7 +45,7 @@
 
             </div><!-- panel -->
 
-        </div><!-- col-md-10 -->
+        </div><!-- col-lg-10 -->
 
     </div><!-- row -->
 @endsection
