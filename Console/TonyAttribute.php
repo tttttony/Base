@@ -5,14 +5,14 @@ use DB;
 use Illuminate\Console\Command;
 use Storage;
 
-class TonyObject extends Command
+class TonyAttribute extends Command
 {
 	/**
 	 * The name and signature of the console command.
 	 *
 	 * @var string
 	 */
-	protected $signature = 'tony:object {module} {object}';
+	protected $signature = 'tony:attribute {module} {object}';
 
 	/**
 	 * The console command description.

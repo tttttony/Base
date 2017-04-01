@@ -7,6 +7,8 @@ use Storage;
 
 class TonyModule extends Command
 {
+	use ScaffoldingBase;
+
 	/**
 	 * The name and signature of the console command.
 	 *
