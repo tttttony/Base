@@ -69,8 +69,8 @@ trait AuthenticatesUsers
         /**
          * Remove the socialite session variable if exists
          */
-        if (app('session')->has(config('access.socialite_session_name'))) {
-            app('session')->forget(config('access.socialite_session_name'));
+        if (app('session')->has(config('base.socialite_session_name'))) {
+            app('session')->forget(config('base.socialite_session_name'));
         }
 
         //access()->user()->clearApiToken();

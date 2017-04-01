@@ -62,7 +62,7 @@ trait UseSocialite
         /**
          * Set session variable so we know which provider user is logged in as, if ever needed
          */
-        session([config('access.socialite_session_name') => $provider]);
+        session([config('base.socialite_session_name') => $provider]);
 
         /**
          * Return to the intended url or default to the class property

@@ -16,31 +16,31 @@ class UserTableSeeder extends Seeder
         }
 
         if (env('DB_CONNECTION') == 'mysql') {
-            DB::table(config('access.users_table'))->truncate();
+            DB::table(config('base.users_table'))->truncate();
         } elseif (env('DB_CONNECTION') == 'sqlite') {
-            DB::statement('DELETE FROM ' . config('access.users_table'));
+            DB::statement('DELETE FROM ' . config('base.users_table'));
         } else {
             //For PostgreSQL or anything else
-            DB::statement('TRUNCATE TABLE ' . config('access.users_table') . ' CASCADE');
+            DB::statement('TRUNCATE TABLE ' . config('base.users_table') . ' CASCADE');
         }
 
         //Add the master administrator, user id of 1
         $users = [
             [
                 'name'              => 'Admin',
-                'username'          => 'admin@tacony.com',
-                'email'             => 'admin@tacony.com',
-                'password'          => bcrypt('admin1234'),
+                'username'          => 'admin@admin.com',
+                'email'             => 'admin@admin.com',
+                'password'          => bcrypt('secret'),
                 'confirmation_code' => md5(uniqid(mt_rand(), true)),
                 'confirmed'         => true,
                 'created_at'        => Carbon::now(),
                 'updated_at'        => Carbon::now(),
             ],
             [
-                'name'              => 'Consumer',
-                'username'          => 'consumer@tacony.com',
-                'email'             => 'consumer@tacony.com',
-                'password'          => bcrypt('consumer'),
+                'name'              => 'Customer',
+                'username'          => 'customer@customer.com',
+                'email'             => 'customer@customer.com',
+                'password'          => bcrypt('customer'),
                 'confirmation_code' => md5(uniqid(mt_rand(), true)),
                 'confirmed'         => true,
                 'created_at'        => Carbon::now(),
@@ -48,7 +48,7 @@ class UserTableSeeder extends Seeder
             ],
         ];
 
-        DB::table(config('access.users_table'))->insert($users);
+        DB::table(config('base.users_table'))->insert($users);
 
         if (env('DB_CONNECTION') == 'mysql') {
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');

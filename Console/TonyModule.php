@@ -245,7 +245,7 @@ class {$this->module}PermissionSeeder extends Seeder {
 		 /**
          * Create the Blog groups
          */
-        \$group_model              = config('access.group');
+        \$group_model              = config('base.group');
         \$parent_group             = new \$group_model;
         \$parent_group->name       = '{$this->module}';
         \$parent_group->sort       = 1;
@@ -256,7 +256,7 @@ class {$this->module}PermissionSeeder extends Seeder {
         /**
          * Permissions
          */
-        \$permission_model              = config('access.permission');
+        \$permission_model              = config('base.permission');
         \$view_management               = new \$permission_model;
         \$view_management->name         = '{$lower_module}.view-management';
         \$view_management->display_name = 'View Management';

@@ -11,7 +11,7 @@ trait PermissionRelationship
      */
     public function roles()
     {
-        return $this->belongsToMany(config('access.role'), config('access.permission_role_table'), 'permission_id', 'role_id');
+        return $this->belongsToMany(config('base.role'), config('base.permission_role_table'), 'permission_id', 'role_id');
     }
 
     /**
@@ -19,7 +19,7 @@ trait PermissionRelationship
      */
     public function group()
     {
-        return $this->belongsTo(config('access.group'), 'group_id');
+        return $this->belongsTo(config('base.group'), 'group_id');
     }
 
     /**
@@ -27,7 +27,7 @@ trait PermissionRelationship
      */
     public function users()
     {
-        return $this->belongsToMany(config('auth.providers.users.model'), config('access.permission_user_table'), 'permission_id', 'user_id');
+        return $this->belongsToMany(config('auth.providers.users.model'), config('base.permission_user_table'), 'permission_id', 'user_id');
     }
 
     /**
@@ -35,6 +35,6 @@ trait PermissionRelationship
      */
     public function dependencies()
     {
-        return $this->hasMany(config('access.dependency'), 'permission_id', 'id');
+        return $this->hasMany(config('base.dependency'), 'permission_id', 'id');
     }
 }

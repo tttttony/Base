@@ -12,7 +12,7 @@ trait UserAttribute
      */
     public function canChangeEmail()
     {
-        return true; //config('access.users.change_email');
+        return true; //config('base.users.change_email');
     }
 
     /**
@@ -20,7 +20,7 @@ trait UserAttribute
      */
     public function canChangePassword()
     {
-        return ! app('session')->has(config('access.socialite_session_name'));
+        return ! app('session')->has(config('base.socialite_session_name'));
     }
 
     /**

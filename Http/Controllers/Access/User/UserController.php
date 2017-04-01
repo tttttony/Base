@@ -76,7 +76,7 @@ class UserController extends Controller
     public function index()
     {
         return view('access.index')
-            ->withUsers($this->users->getUsersPaginated(config('access.users.default_per_page'), 1));
+            ->withUsers($this->users->getUsersPaginated(config('base.users.default_per_page'), 1));
     }
 
     /**

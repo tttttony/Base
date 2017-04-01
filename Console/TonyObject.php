@@ -223,11 +223,11 @@ class {$this->object}PermissionSeeder extends Seeder
         /**
          * {$this->object_plural}
          */
-        \$permission_model = config('access.permission');
+        \$permission_model = config('base.permission');
         \$view_management = \$permission_model::where('name', '{$lower_module}.view-management')->first();
         \$parent_group_id = \$view_management->group_id;
 
-	    \$group_model = config('access.group');
+	    \$group_model = config('base.group');
 	    \${$lower_object}_group = new \$group_model;
 	    \${$lower_object}_group->name = '{$this->module}';
 	    \${$lower_object}_group->sort = 1;
@@ -236,7 +236,7 @@ class {$this->object}PermissionSeeder extends Seeder
 	    \${$lower_object}_group->updated_at = Carbon::now();
 	    \${$lower_object}_group->save();
 
-        \$permission_model = config('access.permission');
+        \$permission_model = config('base.permission');
         \$view_{$lower_object_plural}_management = new \$permission_model;
         \$view_{$lower_object_plural}_management->name = '{$lower_module}.{$lower_object}.view-management';
         \$view_{$lower_object_plural}_management->display_name = 'View {$this->object_plural} Management';
@@ -246,14 +246,14 @@ class {$this->object}PermissionSeeder extends Seeder
         \$view_{$lower_object_plural}_management->created_at = Carbon::now();
         \$view_{$lower_object_plural}_management->updated_at = Carbon::now();
         \$view_{$lower_object_plural}_management->save();
-        DB::table(config('access.permission_dependencies_table'))->insert([
+        DB::table(config('base.permission_dependencies_table'))->insert([
             'permission_id' => \$view_{$lower_object_plural}_management->id,
             'dependency_id' => \$view_management->id,
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ]);
         {
-            \$permission_model = config('access.permission');
+            \$permission_model = config('base.permission');
             \$create_{$lower_object_plural} = new \$permission_model;
             \$create_{$lower_object_plural}->name = '{$lower_module}.{$lower_object}.create';
             \$create_{$lower_object_plural}->display_name = 'Create {$this->object_plural}';
@@ -263,14 +263,14 @@ class {$this->object}PermissionSeeder extends Seeder
             \$create_{$lower_object_plural}->created_at = Carbon::now();
             \$create_{$lower_object_plural}->updated_at = Carbon::now();
             \$create_{$lower_object_plural}->save();
-            DB::table(config('access.permission_dependencies_table'))->insert([
+            DB::table(config('base.permission_dependencies_table'))->insert([
                 'permission_id' => \$create_{$lower_object_plural}->id,
                 'dependency_id' => \$view_{$lower_object_plural}_management->id,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ]);
 
-            \$permission_model = config('access.permission');
+            \$permission_model = config('base.permission');
             \$edit_{$lower_object_plural} = new \$permission_model;
             \$edit_{$lower_object_plural}->name = '{$lower_module}.{$lower_object}.edit';
             \$edit_{$lower_object_plural}->display_name = 'Edit {$this->object_plural}';
@@ -280,14 +280,14 @@ class {$this->object}PermissionSeeder extends Seeder
             \$edit_{$lower_object_plural}->created_at = Carbon::now();
             \$edit_{$lower_object_plural}->updated_at = Carbon::now();
             \$edit_{$lower_object_plural}->save();
-            DB::table(config('access.permission_dependencies_table'))->insert([
+            DB::table(config('base.permission_dependencies_table'))->insert([
                 'permission_id' => \$edit_{$lower_object_plural}->id,
                 'dependency_id' => \$view_{$lower_object_plural}_management->id,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ]);
 
-            \$permission_model = config('access.permission');
+            \$permission_model = config('base.permission');
             \$delete_{$lower_object_plural} = new \$permission_model;
             \$delete_{$lower_object_plural}->name = '{$lower_module}.{$lower_object}.delete';
             \$delete_{$lower_object_plural}->display_name = 'Delete {$this->object_plural}';
@@ -297,14 +297,14 @@ class {$this->object}PermissionSeeder extends Seeder
             \$delete_{$lower_object_plural}->created_at = Carbon::now();
             \$delete_{$lower_object_plural}->updated_at = Carbon::now();
             \$delete_{$lower_object_plural}->save();
-            DB::table(config('access.permission_dependencies_table'))->insert([
+            DB::table(config('base.permission_dependencies_table'))->insert([
                 'permission_id' => \$delete_{$lower_object_plural}->id,
                 'dependency_id' => \$view_{$lower_object_plural}_management->id,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ]);
 
-            \$permission_model = config('access.permission');
+            \$permission_model = config('base.permission');
             \$undelete_{$lower_object_plural} = new \$permission_model;
             \$undelete_{$lower_object_plural}->name = '{$lower_module}.{$lower_object}.undelete';
             \$undelete_{$lower_object_plural}->display_name = 'Restore {$this->object_plural}';
@@ -314,14 +314,14 @@ class {$this->object}PermissionSeeder extends Seeder
             \$undelete_{$lower_object_plural}->created_at = Carbon::now();
             \$undelete_{$lower_object_plural}->updated_at = Carbon::now();
             \$undelete_{$lower_object_plural}->save();
-            DB::table(config('access.permission_dependencies_table'))->insert([
+            DB::table(config('base.permission_dependencies_table'))->insert([
                 'permission_id' => \$undelete_{$lower_object_plural}->id,
                 'dependency_id' => \$view_{$lower_object_plural}_management->id,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ]);
 
-            \$permission_model = config('access.permission');
+            \$permission_model = config('base.permission');
             \$permanently_delete_{$lower_object_plural} = new \$permission_model;
             \$permanently_delete_{$lower_object_plural}->name = '{$lower_module}.{$lower_object}.permanently-delete';
             \$permanently_delete_{$lower_object_plural}->display_name = 'Permanently Delete {$this->object_plural}';

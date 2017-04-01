@@ -29,7 +29,7 @@ trait RegistersUsers
      */
     public function register(RegisterRequest $request)
     {
-        if (config('access.users.confirm_email')) {
+        if (config('base.users.confirm_email')) {
             $user = $this->userService->registerUser($request->all());
             event(new UserRegistered($user));
             return redirect()->route('frontend.index')->withFlashSuccess(trans('exceptions.frontend.auth.confirmation.created_confirm'));

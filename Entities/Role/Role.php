@@ -34,6 +34,6 @@ class Role extends BaseEntity
      */
     public function __construct()
     {
-        $this->table = config('access.roles_table');
+        $this->table = config('base.roles_table');
     }
 }

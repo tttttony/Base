@@ -16,12 +16,12 @@ class PermissionDependencyTableSeeder extends Seeder
         }
 
         if (env('DB_CONNECTION') == 'mysql') {
-            DB::table(config('access.permission_dependencies_table'))->truncate();
+            DB::table(config('base.permission_dependencies_table'))->truncate();
         } elseif (env('DB_CONNECTION') == 'sqlite') {
-            DB::statement('DELETE FROM ' . config('access.permission_dependencies_table'));
+            DB::statement('DELETE FROM ' . config('base.permission_dependencies_table'));
         } else {
             //For PostgreSQL or anything else
-            DB::statement('TRUNCATE TABLE ' . config('access.permission_dependencies_table') . ' CASCADE');
+            DB::statement('TRUNCATE TABLE ' . config('base.permission_dependencies_table') . ' CASCADE');
         }
         
         $permission1Id = DB::table('permissions')->where('name', 'view-backend')->first()->id;
@@ -30,7 +30,7 @@ class PermissionDependencyTableSeeder extends Seeder
         /**
          * View access management needs view backend
          */
-        DB::table(config('access.permission_dependencies_table'))->insert([
+        DB::table(config('base.permission_dependencies_table'))->insert([
             'permission_id' => $permission2Id,
             'dependency_id' => $permission1Id,
             'created_at'    => Carbon::now(),
@@ -44,14 +44,14 @@ class PermissionDependencyTableSeeder extends Seeder
         $remainingPermissionsIds = DB::table('permissions')->where('id', '>', 2)->pluck('id');
         
         foreach ($remainingPermissionsIds as $remainingPermissionId) {
-            DB::table(config('access.permission_dependencies_table'))->insert([
+            DB::table(config('base.permission_dependencies_table'))->insert([
                 'permission_id' => $remainingPermissionId,
                 'dependency_id' => $permission1Id,
                 'created_at'    => Carbon::now(),
                 'updated_at'    => Carbon::now(),
             ]);
 
-            DB::table(config('access.permission_dependencies_table'))->insert([
+            DB::table(config('base.permission_dependencies_table'))->insert([
                 'permission_id' => $remainingPermissionId,
                 'dependency_id' => $permission2Id,
                 'created_at'    => Carbon::now(),

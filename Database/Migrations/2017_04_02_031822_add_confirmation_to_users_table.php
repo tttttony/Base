@@ -15,7 +15,7 @@ class AddConfirmationToUsersTable extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->string('confirmation_code')->nullable()->after('status');
-            $table->boolean('confirmed')->default(config('access.users.confirm_email') ? false : true)->after('status');
+            $table->boolean('confirmed')->default(config('base.users.confirm_email') ? false : true)->after('status');
 
             $table->softDeletes();
         });

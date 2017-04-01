@@ -31,6 +31,6 @@ class Permission extends BaseEntity
      */
     public function __construct()
     {
-        $this->table = config('access.permissions_table');
+        $this->table = config('base.permissions_table');
     }
 }

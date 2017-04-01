@@ -2,13 +2,11 @@
 
 namespace Modules\Base\Providers;
 
-use Carbon\Carbon;
 use Illuminate\Routing\Router;
 use Modules\Base\Http\Middleware\Authenticate;
 use Modules\Base\Services\Access\Access;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
-use Laravel\Passport\Passport;
 
 /**
  * Class AccessServiceProvider

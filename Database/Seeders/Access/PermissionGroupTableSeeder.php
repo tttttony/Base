@@ -16,18 +16,18 @@ class PermissionGroupTableSeeder extends Seeder
         }
 
         if (env('DB_CONNECTION') == 'mysql') {
-            DB::table(config('access.permission_group_table'))->truncate();
+            DB::table(config('base.permission_group_table'))->truncate();
         } elseif (env('DB_CONNECTION') == 'sqlite') {
-            DB::statement('DELETE FROM ' . config('access.permission_group_table'));
+            DB::statement('DELETE FROM ' . config('base.permission_group_table'));
         } else {
             //For PostgreSQL or anything else
-            DB::statement('TRUNCATE TABLE ' . config('access.permission_group_table') . ' CASCADE');
+            DB::statement('TRUNCATE TABLE ' . config('base.permission_group_table') . ' CASCADE');
         }
 
         /**
          * Create the Access groups
          */
-        $group_model        = config('access.group');
+        $group_model        = config('base.group');
         $access             = new $group_model;
         $access->name       = 'Access';
         $access->sort       = 1;
@@ -35,7 +35,7 @@ class PermissionGroupTableSeeder extends Seeder
         $access->updated_at = Carbon::now();
         $access->save();
 
-        $group_model      = config('access.group');
+        $group_model      = config('base.group');
         $user             = new $group_model;
         $user->name       = 'User';
         $user->sort       = 1;
@@ -44,7 +44,7 @@ class PermissionGroupTableSeeder extends Seeder
         $user->updated_at = Carbon::now();
         $user->save();
 
-        $group_model      = config('access.group');
+        $group_model      = config('base.group');
         $role             = new $group_model;
         $role->name       = 'Role';
         $role->sort       = 2;
@@ -53,7 +53,7 @@ class PermissionGroupTableSeeder extends Seeder
         $role->updated_at = Carbon::now();
         $role->save();
 
-        $group_model            = config('access.group');
+        $group_model            = config('base.group');
         $permission             = new $group_model;
         $permission->name       = 'Permission';
         $permission->sort       = 3;

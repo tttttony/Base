@@ -20,7 +20,7 @@ class UserService implements UserServiceContract
         DB::transaction(function () use ($data, $provider, &$user) {
             $user = $this->user->create($data, $provider);
 
-            if (config('access.users.confirm_email') && $provider === false) {
+            if (config('base.users.confirm_email') && $provider === false) {
                 $this->sendConfirmationEmail($user);
             }
         });

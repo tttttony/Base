@@ -157,7 +157,7 @@ class EloquentUserRepository extends EloquentBaseRepository implements UserRepos
 //                'email' => $data['email'],
 //                'password' => bcrypt($data['password']),
 //                'confirmation_code' => md5(uniqid(mt_rand(), true)),
-//                'confirmed' => config('access.users.confirm_email') ? 0 : 1,
+//                'confirmed' => config('base.users.confirm_email') ? 0 : 1,
 //                'status' => 1,
 //            ]);
 //            dd($user);
