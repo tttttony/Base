@@ -7,6 +7,7 @@ use Storage;
 
 class TonyObject extends Command
 {
+	use ScaffoldingBase;
     /**
      * The name and signature of the console command.
      *
@@ -111,44 +112,41 @@ class TonyObject extends Command
 		$lower_module = strtolower($this->module);
         $lower_object = strtolower($this->object);
         $lower_object_plural = strtolower($this->object_plural);
-        
-		//Output lines of code that need to be added manually to other existing files.
-		//Route
-		$this->error("\n\n!!!! Don't forget to manually add the following lines: ");
 
-		$this->line("\n\tHttp\\routes.php");
-		$this->info(<<<CODE
-	Route::resource('{$lower_object_plural}', '{$this->object_plural}Controller', ['as' => 'admin']);
+		$this->addLineToFile(
+			$this->module . '/Routes/web.php',
+			'/** ROUTES **/', <<<CODE
+Route::resource('{$lower_object_plural}', '{$this->object_plural}Controller', ['as' => 'admin']);
 CODE
 		);
 
-		//Seeder link
-		$this->line("\n\tDatabase\\Seeders\\".$this->module."PermissionSeeder.php");
-		$this->info(<<<CODE
+		$this->addLineToFile(
+			$this->module . '/Database/Seeders/'.$this->module.'PermissionSeeder.php',
+			'/** OBJECT PERMISSIONS **/', <<<CODE
 	\$this->call({$this->object}PermissionSeeder::class);
 CODE
 		);
 
-		//binding in service provider
-		$this->line("\n\tProviders\\".$this->module."ServiceProvider.php");
-		$this->info(<<<CODE
-	\$this->app->bind(
-		\Modules\\{$this->module}\Repositories\\{$this->object_plural}Repository::class,
-		function () {
-			\$repository = new \Modules\\{$this->module}\Repositories\Eloquent\Eloquent{$this->object_plural}Repository(new \Modules\\{$this->module}\Entities\\{$this->object}());
-			return \$repository;
-		}
-	);
+		$this->addLineToFile(
+			$this->module . '/Providers/'.$this->module.'ServiceProvider.php',
+			'/** BINDINGS **/', <<<CODE
+		\$this->app->bind(
+			\Modules\\{$this->module}\Repositories\\{$this->object_plural}Repository::class,
+			function () {
+				\$repository = new \Modules\\{$this->module}\Repositories\Eloquent\Eloquent{$this->object_plural}Repository(new \Modules\\{$this->module}\Entities\\{$this->object}());
+				return \$repository;
+			}
+		);
+
 CODE
 		);
 
-		//put sidebar in.
-		$this->line("\n\tResources\\views\\includes\\sidebar.blade.php");
-		$this->info(<<<CODE
+		$this->addLineToFile(
+			$this->module . '/Resources/views/includes/sidebar.blade.php',
+			'/** LINKS **/', <<<CODE
 	@include('{$lower_module}::includes.{$lower_object_plural}-sidebar')
 CODE
 		);
-		$this->line("\n");
 	}
 
     public function getCreateTableFile()
@@ -156,7 +154,7 @@ CODE
         $lower_module = strtolower($this->module);
         $lower_object = strtolower($this->object);
 
-        return <<<EOD
+        return <<<FILE
 <?php
 
 use Illuminate\Database\Schema\Blueprint;
@@ -192,7 +190,7 @@ class Create{$this->object}Table extends Migration {
     }
 
 }
-EOD;
+FILE;
 
     }
 
@@ -202,7 +200,7 @@ EOD;
         $lower_object = strtolower($this->object);
         $lower_object_plural = strtolower($this->object_plural);
 
-        return <<<EOD
+        return <<<FILE
 <?php namespace Modules\\{$this->module}\Database\Seeders;
 
 use DB;
@@ -342,7 +340,7 @@ class {$this->object}PermissionSeeder extends Seeder
         }
     }
 }
-EOD;
+FILE;
 
     }
 
@@ -351,7 +349,7 @@ EOD;
         $lower_module = strtolower($this->module);
         $lower_object = strtolower($this->object);
 
-        return <<<EOD
+        return <<<FILE
 <?php namespace Modules\\{$this->module}\Entities;
 
 use Illuminate\Database\Eloquent\Model;
@@ -366,19 +364,19 @@ class {$this->object} extends BaseEntity
         "name"
     ];
 }
-EOD;
+FILE;
     }
 
     public function getRelationships()
     {
-        return <<<EOD
+        return <<<FILE
 <?php  namespace Modules\\{$this->module}\Entities\Traits\Relationships;
 
 trait {$this->object}Relationships
 {
 
 }
-EOD;
+FILE;
     }
 
     public function getController()
@@ -387,7 +385,7 @@ EOD;
         $lower_object = strtolower($this->object);
         $lower_object_plural = strtolower($this->object_plural);
 
-        return <<<EOD
+        return <<<FILE
 <?php namespace Modules\\{$this->module}\Http\Controllers;
 
 use Modules\\{$this->module}\Http\Requests\\{$this->object_plural}\Create{$this->object}Request;
@@ -473,7 +471,7 @@ class {$this->object_plural}Controller extends Controller {
 		return redirect()->back();
 	}
 }
-EOD;
+FILE;
     }
 
     public function getRequest($type)
@@ -483,7 +481,7 @@ EOD;
         $lower_module = strtolower($this->module);
         $lower_object = strtolower($this->object);
 
-        return <<<EOD
+        return <<<FILE
 <?php namespace Modules\\{$this->module}\Http\Requests\\{$this->object_plural};
 
 use Modules\Base\Http\Requests\Request;
@@ -516,12 +514,12 @@ class {$type}{$this->object}Request extends Request
         ];
     }
 }
-EOD;
+FILE;
     }
 
     public function getRepository()
     {
-        return <<<EOD
+        return <<<FILE
 <?php namespace Modules\\{$this->module}\Repositories;
 
 use Modules\Base\Repositories\BaseRepository;
@@ -530,12 +528,12 @@ interface {$this->object_plural}Repository extends BaseRepository
 {
 
 }
-EOD;
+FILE;
     }
 
     public function getEloquentRepository()
     {
-        return <<<EOD
+        return <<<FILE
 <?php namespace Modules\\{$this->module}\Repositories\Eloquent;
 
 use Modules\\{$this->module}\Repositories\\{$this->object_plural}Repository;
@@ -545,7 +543,7 @@ class Eloquent{$this->object_plural}Repository extends EloquentBaseRepository im
 {
 
 }
-EOD;
+FILE;
     }
     
     public function getSidebarBlade()
@@ -554,13 +552,13 @@ EOD;
         $lower_object = strtolower($this->object);
         $lower_object_plural = strtolower($this->object_plural);
 
-        return <<<EOD
+        return <<<FILE
 return [
     'permission' => '{$lower_module}.view-{$lower_object_plural}-management',
     'route' => 'admin.{$lower_module}.{$lower_object_plural}.index',
     'title' => __('{$lower_module}::{$lower_object}.uppercase.{$lower_object_plural}'),
 ];
-EOD;
+FILE;
     }
 
     public function getCreateBlade()
@@ -569,7 +567,7 @@ EOD;
         $lower_object = strtolower($this->object);
         $lower_object_plural = strtolower($this->object_plural);
 
-        return <<<EOD
+        return <<<FILE
 @extends('pages.default')
 
 @section ('title', __('{$lower_module}::titles.create-{$lower_object}'))
@@ -600,7 +598,7 @@ EOD;
         </div>
     </div>
 @stop
-EOD;
+FILE;
     }
 
     public function getEditBlade()
@@ -609,7 +607,7 @@ EOD;
         $lower_object = strtolower($this->object);
         $lower_object_plural = strtolower($this->object_plural);
 
-        return <<<EOD
+        return <<<FILE
 @extends('pages.default')
 
 @section ('title', trans('{$lower_module}::titles.edit-{$lower_object}'))
@@ -640,7 +638,7 @@ EOD;
         </div>
     </div>
 @stop
-EOD;
+FILE;
     }
 
     public function getFormBlade()
@@ -648,14 +646,14 @@ EOD;
         $lower_module = strtolower($this->module);
         $lower_object = strtolower($this->object);
 
-        return <<<EOD
+        return <<<FILE
 <div class="form-group">
     {!! Form::label('name', trans('{$lower_module}::{$lower_object}.form.labels.name'), ['class' => 'form-control-label']) !!}
     <div class="control-input">
         {!! Form::text('name', null, ['class' => 'form-control', 'placeholder' => trans('{$lower_module}::{$lower_object}.form.placeholders.name')]) !!}
     </div>
 </div>
-EOD;
+FILE;
     }
 
     public function getIndexBlade()
@@ -664,7 +662,7 @@ EOD;
         $lower_object = strtolower($this->object);
         $lower_object_plural = strtolower($this->object_plural);
 
-        return <<<EOD
+        return <<<FILE
 @extends('pages.default')
 
 @section ('title', __('{$lower_module}::{$lower_object}.uppercase.{$lower_object}-management'))
@@ -698,14 +696,14 @@ EOD;
 		</div>
 	</div>
 @stop
-EOD;
+FILE;
     }
 
 	public function getLanguageFile()
 	{
 		$lower_object = strtolower($this->object);
         $lower_object_plural = strtolower($this->object_plural);
-		return <<<EOD
+		return <<<FILE
 <?php
 return [
     '{$lower_object_plural}' => '{$lower_object_plural}',
@@ -730,6 +728,6 @@ return [
         'deleted' => '{$this->object} deleted'
     ]
 ];
-EOD;
+FILE;
 	}
 }

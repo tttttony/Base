@@ -62,7 +62,7 @@ class TonyModule extends Command
 			$this->put($this->module . '/Resources/views/layouts/master.blade.php', $this->getLayoutFile());
 
 			//Misc.
-			$this->put($this->module . '/Http/routes.php', $this->getRouteFile());
+			$this->put($this->module . '/Routes/web.php', $this->getRouteFile());
 			$this->put($this->module . '/Providers/'.$this->module.'ServiceProvider.php', $this->getServiceProviderFile());
 
 			$this->manualCodeChanges();
@@ -118,23 +118,10 @@ CODE
 
 	public function getStartFile()
 	{
-		return <<<EOD
+		return <<<FILE
 <?php
 
-/*
-|--------------------------------------------------------------------------
-| Register Namespaces And Routes
-|--------------------------------------------------------------------------
-|
-| When a module starting, this file will executed automatically. This helps
-| to register some namespaces like translator or view. Also this file
-| will load the routes file for each module. You may also modify
-| this file as you want.
-|
-*/
-
-require __DIR__ . '/Http/routes.php';
-EOD;
+FILE;
 
 	}
 
@@ -142,7 +129,7 @@ EOD;
 	{
 		$lower_module = strtolower($this->module);
 
-		return <<<EOD
+		return <<<FILE
 {
 	"name": "tonycms/{$lower_module}",
 	"type": "laravel-library",
@@ -164,7 +151,7 @@ EOD;
 		}
 	}
 }
-EOD;
+FILE;
 
 	}
 
@@ -172,7 +159,7 @@ EOD;
 	{
 		$lower_module = strtolower($this->module);
 
-		return <<<EOD
+		return <<<FILE
 {
     "name": "{$this->module}",
     "alias": "{$lower_module}",
@@ -188,25 +175,25 @@ EOD;
         "start.php"
     ]
 }
-EOD;
+FILE;
 
 	}
 
 	public function getConfigFile()
 	{
-		return <<<EOD
+		return <<<FILE
 <?php
 
 return [
 	'name' => '{$this->module}'
 ];
-EOD;
+FILE;
 
 	}
 
 	public function getDatabaseSeederFile()
 	{
-		return <<<EOD
+		return <<<FILE
 <?php namespace Modules\\{$this->module}\Database\Seeders;
 
 use Illuminate\Database\Seeder;
@@ -225,18 +212,18 @@ class {$this->module}DatabaseSeeder extends Seeder {
 
 		\$this->call({$this->module}PermissionSeeder::class);
 
-		//Add Object files here
+		/** OBJECT SEEDS **/
 	}
 
 }
-EOD;
+FILE;
 
 	}
 
 	public function getPermissionSeederFile()
 	{
 		$lower_module = strtolower($this->module);
-		return <<<EOD
+		return <<<FILE
 <?php namespace Modules\\{$this->module}\Database\Seeders;
 
 use DB;
@@ -281,10 +268,10 @@ class {$this->module}PermissionSeeder extends Seeder {
         \$view_management->save();
 
 		//add objects require statements below
-
+		/** OBJECT PERMISSIONS **/
 	}
 }
-EOD;
+FILE;
 
 	}
 
@@ -292,7 +279,7 @@ EOD;
 	{
 		$lower_module = strtolower($this->module);
 		$lower_module_plural = strtolower($this->module_plural);
-		return <<<EOD
+		return <<<FILE
 <?php
 return [
     '{$lower_module_plural}' => '{$lower_module_plural}',
@@ -302,14 +289,14 @@ return [
         '{$lower_module}' => '{$this->module}',
     ]
 ];
-EOD;
+FILE;
 
 	}
 
 	public function getSidebarFile()
 	{
 		$lower_module = strtolower($this->module);
-		return <<<EOD
+		return <<<FILE
 @include('partials.menu-item',
 [
     'icon' => '<i class="fa fa-circle"></i>',
@@ -319,31 +306,32 @@ EOD;
 
     ]
 ])
-EOD;
+FILE;
 
 	}
 
 	public function getLayoutFile()
 	{
-		return <<<EOD
+		return <<<FILE
 @extends('layouts.master')
-EOD;
+FILE;
 
 	}
 
 	public function getRouteFile()
 	{
-		return <<<EOD
+		return <<<FILE
 <?php
 
-EOD;
+/** ROUTES **/
+FILE;
 
 	}
 
 	public function getServiceProviderFile()
 	{
 		$lower_module = strtolower($this->module);
-		return <<<EOD
+		return <<<FILE
 <?php namespace Modules\\{$this->module}\Providers;
 
 use Illuminate\Support\ServiceProvider;
@@ -382,7 +370,7 @@ class {$this->module}ServiceProvider extends ServiceProvider {
 
 	private function registerBindings()
 	{
-		//Object bindings go here
+		/** BINDINGS **/
 	}
 
 	/**
@@ -448,7 +436,7 @@ class {$this->module}ServiceProvider extends ServiceProvider {
 
 }
 
-EOD;
+FILE;
 
 	}
 }
