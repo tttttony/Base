@@ -322,10 +322,12 @@ FILE;
 
 	public function getRouteFile()
 	{
+		$lower_module = strtolower($this->module);
 		return <<<FILE
 <?php
-
+Route::group(['middleware' => 'auth', 'prefix' => '{$lower_module}'], function(){
 /** ROUTES **/
+});
 FILE;
 
 	}

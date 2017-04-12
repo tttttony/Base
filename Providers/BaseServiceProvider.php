@@ -2,7 +2,6 @@
 
 use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider;
-use Modules\Base\Http\Middleware\ThemeMiddleware;
 
 
 class BaseServiceProvider extends ServiceProvider {
@@ -24,8 +23,6 @@ class BaseServiceProvider extends ServiceProvider {
 		$this->registerTranslations();
 		$this->registerConfig();
 		$this->registerViews();
-
-		$router->aliasMiddleware('theme', ThemeMiddleware::class);
 	}
 
 	/**

@@ -47,6 +47,7 @@ class TonyObject extends Command
         $this->module_plural = str_plural($this->module);
         $this->object = ucwords($this->argument('object'));
         $this->object_plural = str_plural($this->object);
+	    $lower_object_plural = strtolower($this->object_plural);
 
         //TODO: If the module is new, build the base module files too.
 	    $this->checkModule();
@@ -74,10 +75,10 @@ class TonyObject extends Command
 
         //Resources
         $this->put($this->module . '/Resources/views/includes/' . strtolower($this->object_plural) . '-sidebar.blade.php', $this->getSidebarBlade());
-        $this->put($this->module . '/Resources/views/' . $this->object_plural . '/create.blade.php', $this->getCreateBlade());
-        $this->put($this->module . '/Resources/views/' . $this->object_plural . '/edit.blade.php', $this->getEditBlade());
-        $this->put($this->module . '/Resources/views/' . $this->object_plural . '/form.blade.php', $this->getFormBlade());
-	    $this->put($this->module . '/Resources/views/' . $this->object_plural . '/index.blade.php', $this->getIndexBlade());
+        $this->put($this->module . '/Resources/views/' . $lower_object_plural . '/create.blade.php', $this->getCreateBlade());
+        $this->put($this->module . '/Resources/views/' . $lower_object_plural . '/edit.blade.php', $this->getEditBlade());
+        $this->put($this->module . '/Resources/views/' . $lower_object_plural . '/form.blade.php', $this->getFormBlade());
+	    $this->put($this->module . '/Resources/views/' . $lower_object_plural . '/index.blade.php', $this->getIndexBlade());
 	    $this->put($this->module . '/Resources/lang/en/' . strtolower($this->object) . '.php', $this->getLanguageFile());
 
 	    $this->manualCodeChanges();
@@ -111,12 +112,13 @@ class TonyObject extends Command
 	{
 		$lower_module = strtolower($this->module);
         $lower_object = strtolower($this->object);
-        $lower_object_plural = strtolower($this->object_plural);
+		$lower_module_plural = strtolower($this->module_plural);
+		$lower_object_plural = strtolower($this->object_plural);
 
 		$this->addLineToFile(
 			$this->module . '/Routes/web.php',
 			'/** ROUTES **/', <<<CODE
-Route::resource('{$lower_object_plural}', '{$this->object_plural}Controller', ['as' => 'admin']);
+Route::resource('{$lower_object_plural}', '\Modules\\{$this->module}\Http\Controllers\\{$this->object_plural}Controller', ['as' => 'admin.{$lower_module}']);
 CODE
 		);
 
@@ -331,7 +333,7 @@ class {$this->object}PermissionSeeder extends Seeder
             \$permanently_delete_{$lower_object_plural}->created_at = Carbon::now();
             \$permanently_delete_{$lower_object_plural}->updated_at = Carbon::now();
             \$permanently_delete_{$lower_object_plural}->save();
-            DB::table(config('access.permission_dependencies_table'))->insert([
+            DB::table(config('base.permission_dependencies_table'))->insert([
                 'permission_id' => \$permanently_delete_{$lower_object_plural}->id,
                 'dependency_id' => \$view_{$lower_object_plural}_management->id,
                 'created_at' => Carbon::now(),
@@ -352,13 +354,14 @@ FILE;
         return <<<FILE
 <?php namespace Modules\\{$this->module}\Entities;
 
-use Illuminate\Database\Eloquent\Model;
+use Laracasts\Presenter\PresentableTrait;
 use Modules\\{$this->module}\Entities\Traits\Relationships\\{$this->object}Relationships;
 use Modules\Base\Entities\BaseEntity;
 
 class {$this->object} extends BaseEntity
 {
-    use {$this->object}Relationships;
+    use {$this->object}Relationships, PresentableTrait;
+    protected \$presenter = 'Modules\Base\Entities\Presenters\BasePresenter';
     protected \$table = "{$lower_module}__{$lower_object}";
     protected \$fillable = [
         "name"
