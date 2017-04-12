@@ -1,7 +1,5 @@
 <?php namespace Modules\Base\Repositories\Eloquent;
 
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Modules\Base\Entities\Traits\Filterable;
 use Modules\Base\Exceptions\GeneralException;
 use Modules\Base\Repositories\BaseRepository;
@@ -18,6 +16,7 @@ abstract class EloquentBaseRepository implements BaseRepository
      * @var \Illuminate\Database\Eloquent\Model An instance of the Eloquent Model
      */
     protected $model;
+    protected $query;
 
     //TODO: DESC and ASC should be constants
     protected $sortBy = 'id';
@@ -35,7 +34,16 @@ abstract class EloquentBaseRepository implements BaseRepository
     }
 
     public function query() {
+        if($this->query instanceof Model)
+            return $this->query;
         return $this->model->query();
+    }
+
+    public function sort($by, $order = 'desc') {
+        if(in_array($by, $this->sortable)) {
+            $this->sortBy = $by;
+            $this->sortOrder = $order;
+        }
     }
 
     protected function filterAndSort($query) {
@@ -44,6 +52,27 @@ abstract class EloquentBaseRepository implements BaseRepository
 
     protected function applySortToQuery($query) {
         return $query->orderBy($this->sortBy, $this->sortOrder);
+    }
+
+    public function syncRelationships($id, $data, $relationships = [])
+    {
+        if($item = $this->find($id)) {
+
+            if(empty($relationships)) {
+                if (!property_exists($this, 'relationships') || !is_array($this->relationships)) {
+                    return $this;
+                }
+                $relationships = $this->relationships;
+            }
+
+            foreach($relationships as $relationship) {
+                $relationship_data = (isset($data[$relationship]) && is_array($data[$relationship])) ? $data[$relationship]: [];
+                $this->attachObject($relationship, $item, $relationship_data);
+            }
+
+            return $this;
+        }
+        throw new GeneralException(__('products::product.error.not_found'));
     }
 
     /**
@@ -110,7 +139,9 @@ abstract class EloquentBaseRepository implements BaseRepository
      */
     public function create($data)
     {
-        return $this->model->create($data);
+        $item = $this->model->create($data);
+        $this->syncRelationships($item->id, (isset($data))?$data:[]);
+        return $item;
     }
 
     /**
@@ -122,6 +153,7 @@ abstract class EloquentBaseRepository implements BaseRepository
     {
         if($item = $this->find($id)) {
             $item->update($data);
+            $this->syncRelationships($item->id, (isset($data))?$data:[]);
             return $item;
         }
         throw new GeneralException(trans('Unexpected Error: Item not found.'));

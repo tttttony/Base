@@ -8,7 +8,7 @@ trait Filterable
 
     protected $filters = [];
 
-    protected function addFilter($key, $operator, $value = null)
+    public function addFilter($key, $operator, $value = null)
     {
         if (func_num_args() == 2) {
             $value = $operator;
