@@ -18,6 +18,11 @@ class UserService implements UserServiceContract
     public function registerUser(array $data, $provider = false)
     {
         DB::transaction(function () use ($data, $provider, &$user) {
+//            $user = $this->users->create(
+//                $request->except(['assignees_roles', 'permission_user']),
+//                $request->only('assignees_roles'),
+//                $request->only('permission_user')
+//            );
             $user = $this->user->create($data, $provider);
 
             if (config('base.users.confirm_email') && $provider === false) {

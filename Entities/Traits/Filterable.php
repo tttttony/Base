@@ -16,7 +16,7 @@ trait Filterable
         }
 
         if(!in_array($key, $this->validFilterableFields)) {
-            return false;
+            return $this;
         }
 
         switch(strtolower($operator)) {
@@ -33,7 +33,7 @@ trait Filterable
         } else {
             $this->filters[$key] = ['value' => $value, 'operator' => $operator];
         }
-        return true;
+        return $this;
     }
 
     protected function applyFiltersToQuery($query)

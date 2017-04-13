@@ -111,7 +111,12 @@ class UserController extends Controller
 //            DB::rollback();
 //        }
 //
-        $this->userService->createUser($request->all());
+        try {
+            $this->userService->createUser($request->all());
+        }
+        catch (Exception $e) {
+
+        }
 		flash(trans('alerts.users.created'), 'success');
         return redirect()->route('admin.access.users.index');
     }

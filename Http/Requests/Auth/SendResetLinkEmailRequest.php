@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Base\Http\Requests\Frontend\Auth;
+namespace Modules\Base\Http\Requests\Auth;
 
 use Modules\Base\Http\Requests\Request;
 

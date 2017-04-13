@@ -28,7 +28,7 @@ class UpdateUserRequest extends Request
     public function rules()
     {
         return [
-            //'email' => 'required|email|unique:users,email,'.$this->users
+            'email' => 'required|email|unique:users,email,'.$this->users
         ];
     }
 

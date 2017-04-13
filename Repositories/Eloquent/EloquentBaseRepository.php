@@ -20,7 +20,7 @@ abstract class EloquentBaseRepository implements BaseRepository
 
     //TODO: DESC and ASC should be constants
     protected $sortBy = 'id';
-    protected $sortOrder = "DESC";
+    protected $sortOrder = "desc";
 
     /**
      * @param Model $model
@@ -28,9 +28,10 @@ abstract class EloquentBaseRepository implements BaseRepository
     public function __construct($model)
     {
         $this->model = $model;
-        $this->validFilterableFields = [
-            'slug', 'name', 'active'
-        ];
+        $this->validFilterableFields[] = 'id';
+        $this->validFilterableFields[] = 'slug';
+        $this->validFilterableFields[] = 'name';
+        $this->validFilterableFields[] = 'active';
     }
 
     public function query() {
@@ -39,11 +40,12 @@ abstract class EloquentBaseRepository implements BaseRepository
         return $this->model->query();
     }
 
-    public function sort($by, $order = 'desc') {
+    public function sort($by, $order = 'asc') {
         if(in_array($by, $this->sortable)) {
-            $this->sortBy = $by;
-            $this->sortOrder = $order;
+            $this->sortBy = ($by) ?: 'id';
+            $this->sortOrder = ($order) ?: 'asc';
         }
+        return $this;
     }
 
     protected function filterAndSort($query) {
@@ -187,8 +189,7 @@ abstract class EloquentBaseRepository implements BaseRepository
      */
     public function findByMany(array $ids)
     {
-        $this->addFilter('id', 'in', $ids);
-        return $this->filterAndSort($this->query())->get();
+        return $this->filterAndSort($this->query())->findMany($ids);
     }
     /**
      * Clear the cache for this Repositories' Entity
