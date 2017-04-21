@@ -28,6 +28,13 @@ abstract class EloquentBaseRepository implements BaseRepository
     public function __construct($model)
     {
         $this->model = $model;
+        $this->sortBy = $this->model->getKeyName();
+        if($this->sortBy != 'id') $this->sortOrder = "asc";
+
+        $this->sortable[] = 'id';
+        $this->sortable[] = 'slug';
+        $this->sortable[] = 'name';
+
         $this->validFilterableFields[] = 'id';
         $this->validFilterableFields[] = 'slug';
         $this->validFilterableFields[] = 'name';
@@ -42,8 +49,8 @@ abstract class EloquentBaseRepository implements BaseRepository
 
     public function sort($by, $order = 'asc') {
         if(in_array($by, $this->sortable)) {
-            $this->sortBy = ($by) ?: 'id';
-            $this->sortOrder = ($order) ?: 'asc';
+            $this->sortBy = ($by) ?: $this->model->getKeyName();
+            $this->sortOrder = ($order) ?: "asc";
         }
         return $this;
     }
@@ -122,9 +129,9 @@ abstract class EloquentBaseRepository implements BaseRepository
     /**
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function listAll($name_column = 'name', $id_column = 'id')
+    public function listAll($name_column = 'name')
     {
-        return $this->filterAndSort($this->query())->pluck($name_column, $id_column)->all();
+        return $this->filterAndSort($this->query())->pluck($name_column, $this->model->getKeyName())->all();
     }
 
     /**
@@ -142,7 +149,7 @@ abstract class EloquentBaseRepository implements BaseRepository
     public function create($data)
     {
         $item = $this->model->create($data);
-        $this->syncRelationships($item->id, (isset($data))?$data:[]);
+        $this->syncRelationships($item->getKey(), (isset($data))?$data:[]);
         return $item;
     }
 
@@ -155,7 +162,7 @@ abstract class EloquentBaseRepository implements BaseRepository
     {
         if($item = $this->find($id)) {
             $item->update($data);
-            $this->syncRelationships($item->id, (isset($data))?$data:[]);
+            $this->syncRelationships($item->getKey(), (isset($data))?$data:[]);
             return $item;
         }
         throw new GeneralException(trans('Unexpected Error: Item not found.'));

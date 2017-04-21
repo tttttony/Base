@@ -42,7 +42,7 @@ class ApiController extends Controller
 */
     }
 
-    protected function sortAndFilter($repo) {
+    protected function prepare($repo) {
         $repo->sort($this->sortBy, $this->sortOrder);
 
         foreach($this->filters as $filter) {

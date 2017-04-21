@@ -6,7 +6,7 @@
             @foreach ($cols as $table_col)
                 <th>{{ $table_col['header'] }}</th>
             @endforeach
-                <th></th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -16,6 +16,7 @@
                 <td>
                     @if(array_key_exists('relationship', $table_col) && $table_col['relationship'])
                         @php
+                            //TODO: make this better
                             $display = [];
                             if(count($item->{$table_col['relationship']}) > 0) {
                                 if($item->{$table_col['relationship']} instanceof \Illuminate\Database\Eloquent\Model) {
@@ -47,13 +48,13 @@
                 <div class="float-right">
                 @foreach ($actions as $action)
                     @permission($action['permission'])
-                            <a href="{{ URL::route($action['route'], $item->id) }}" {!! app('html')->attributes($action['attributes']) !!}>
-                                @if(isset($action['icon']))
-                                    <i class="fa fa-{{ $action['icon'] }}" data-toggle="tooltip" title="{{ $action['title'] }}"></i>
-                                @else
-                                    {{ $action['title'] }}
-                                @endif
-                            </a>
+                        <a href="{{ URL::route($action['route'], $item->getKey()) }}" {!! app('html')->attributes($action['attributes']) !!}>
+                            @if(isset($action['icon']))
+                                <i class="fa fa-{{ $action['icon'] }}" data-toggle="tooltip" title="{{ $action['title'] }}"></i>
+                            @else
+                                {{ $action['title'] }}
+                            @endif
+                        </a>
                     @endauth
                 @endforeach
                 </div>
