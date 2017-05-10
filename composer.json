@@ -16,7 +16,7 @@
 	"require": {
 		"php": ">=5.5",
 		"composer/installers": "~1.0",
-		"nwidart/laravel-modules": "^1.16",
+		"nwidart/laravel-modules": "dev-master",
 		"creativeorange/gravatar": "^1.0"
 	},
 	"autoload": {
