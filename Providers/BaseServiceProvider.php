@@ -1,8 +1,8 @@
 <?php namespace Modules\Base\Providers;
 
 use Illuminate\Routing\Router;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
-
 
 class BaseServiceProvider extends ServiceProvider {
 
@@ -23,6 +23,7 @@ class BaseServiceProvider extends ServiceProvider {
 		$this->registerTranslations();
 		$this->registerConfig();
 		$this->registerViews();
+		$this->registerBladeExtentions();
 	}
 
 	/**
@@ -40,6 +41,10 @@ class BaseServiceProvider extends ServiceProvider {
         $this->app->bind(
             \Modules\Base\Services\UserServiceContract::class,
             \Modules\Base\Services\UserService::class
+        );
+        $this->app->bind(
+            \Modules\Base\Repositories\BaseRepository::class,
+            function(){ return new \Modules\Base\Repositories\Eloquent\EloquentBaseRepository(new \Modules\Base\Entities\BaseEntity()); }
         );
 	}
 
@@ -103,5 +108,15 @@ class BaseServiceProvider extends ServiceProvider {
 	{
 		return array();
 	}
+
+	public function registerBladeExtentions() {
+        Blade::directive('wrap', function($expression){
+            return "<?php \$wrapper = $expression; ob_start(); ?>";
+        });
+
+        Blade::directive('endwrap', function(){
+            return "<?php \$output = ob_get_contents(); ob_end_clean(); echo preg_replace(\"/<(label|input|select|textarea)(.*?)(name|for)=\\\"(.*?)?(\\[])?\\\"/\", \"<$1$2$3=\\\"\".\$wrapper.\"[$4]$5\\\"\", \$output); ?>";
+        });
+    }
 
 }

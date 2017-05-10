@@ -39,7 +39,35 @@ trait Filterable
     protected function applyFiltersToQuery($query)
     {
         foreach($this->filters as $key => $comparision) {
+            if(str_contains($key, '.')) {
+                list($relationship, $key) = explode('.', $key);
+
+                if (in_array($relationship, $this->relationships)) {
+                    $query->with($relationship)->whereHas($relationship, function ($q) use ($key, $comparision) {
+                        switch(strtolower($comparision['operator'])) {
+                            case 'in':
+                                $q->whereIn($key, $comparision['value']);
+                                break;
+                            case'!in':
+                                $q->whereNotIn($key, $comparision['value']);
+                                break;
+                            default:
+                                $q->where($key, $comparision['operator'], $comparision['value']);
+                                break;
+                        }
+                    });
+                }
+                continue;
+            }
+
             switch(strtolower($comparision['operator'])) {
+                case null:
+                case 'null':
+                    $query->whereNull($key);
+                    break;
+                case '!null':
+                    $query->whereNull($key);
+                    break;
                 case 'in':
                     $query->whereIn($key, $comparision['value']);
                     break;

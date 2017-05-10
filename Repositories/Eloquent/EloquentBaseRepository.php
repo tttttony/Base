@@ -1,5 +1,6 @@
 <?php namespace Modules\Base\Repositories\Eloquent;
 
+use Illuminate\Support\Facades\App;
 use Modules\Base\Entities\Traits\Filterable;
 use Modules\Base\Exceptions\GeneralException;
 use Modules\Base\Repositories\BaseRepository;
@@ -29,7 +30,9 @@ abstract class EloquentBaseRepository implements BaseRepository
     {
         $this->model = $model;
         $this->sortBy = $this->model->getKeyName();
-        if($this->sortBy != 'id') $this->sortOrder = "asc";
+        if ($this->sortBy != 'id') {
+            $this->sortOrder = "asc";
+        }
 
         $this->sortable[] = 'id';
         $this->sortable[] = 'slug';
@@ -41,42 +44,56 @@ abstract class EloquentBaseRepository implements BaseRepository
         $this->validFilterableFields[] = 'active';
     }
 
-    public function query() {
-        if($this->query instanceof Model)
+    public function query()
+    {
+        if ($this->query instanceof Model) {
             return $this->query;
+        }
         return $this->model->query();
     }
 
-    public function sort($by, $order = 'asc') {
-        if(in_array($by, $this->sortable)) {
+    public function getModelName() {
+        return class_basename($this->model);
+    }
+
+    public function sort($by, $order = 'asc')
+    {
+        if (in_array($by, $this->sortable)) {
             $this->sortBy = ($by) ?: $this->model->getKeyName();
             $this->sortOrder = ($order) ?: "asc";
         }
         return $this;
     }
 
-    protected function filterAndSort($query) {
+    protected function filterAndSort($query)
+    {
         return $this->applySortToQuery($this->applyFiltersToQuery($query));
     }
 
-    protected function applySortToQuery($query) {
+    protected function applySortToQuery($query)
+    {
         return $query->orderBy($this->sortBy, $this->sortOrder);
     }
 
     public function syncRelationships($id, $data, $relationships = [])
     {
-        if($item = $this->find($id)) {
-
-            if(empty($relationships)) {
+        if ($item = $this->find($id)) {
+            if (empty($relationships)) {
                 if (!property_exists($this, 'relationships') || !is_array($this->relationships)) {
                     return $this;
                 }
                 $relationships = $this->relationships;
             }
 
-            foreach($relationships as $relationship) {
-                $relationship_data = (isset($data[$relationship]) && is_array($data[$relationship])) ? $data[$relationship]: [];
-                $this->attachObject($relationship, $item, $relationship_data);
+            foreach ($relationships as $relationship) {
+                if (env('SITE_CODE') != null and $relationship == 'properties') {
+                    continue;
+                }
+
+                if (isset($data[$relationship]) || (isset($data['_method']) and $data['_method'] == 'PUT')) {
+                    $relationship_data = (isset($data[$relationship]) and is_array($data[$relationship])) ? $data[$relationship] : [];
+                    $this->attachObject($relationship, $item, $relationship_data);
+                }
             }
 
             return $this;
@@ -90,33 +107,49 @@ abstract class EloquentBaseRepository implements BaseRepository
      * @param array $object_ids
      * @return $this
      */
-    public function attachObject($object, $item, $object_ids = []) {
-        $method = 'attach'.ucfirst($object);
+    public function attachObject($object, $item, $object_ids = [])
+    {
+        $method = 'attach' . ucfirst($object);
 
-        if(method_exists($this, $method)) {
+        if (method_exists($this, $method)) {
             $this->{$method}($item, $object_ids);
-        }
-        else {
-            if(method_exists($item->{$object}(), 'sync'))
+        } else {
+            if (method_exists($item->{$object}(), 'sync')) {
                 $item->{$object}()->sync($object_ids, true);
-            else
+            } else {
                 $item->sync($object, $object_ids);
+            }
         }
 
         return $this;
     }
 
     /**
-     * @param  int    $id
+     * @param  int $id
      * @return object
      */
     public function find($id)
     {
-        if($item = $this->filterAndSort($this->query())->find($id)) {
+        if ($item = $this->filterAndSort($this->query())->find($id)) {
             return $item;
         }
         throw new GeneralException(trans('Unexpected Error: Item not found.'));
     }
+
+    public function selected_relationships($id)
+    {
+        $return = [];
+        $item = $this->find($id);
+        foreach ($this->relationships as $relationship) {
+            if (method_exists($this, 'selected_' . $relationship)) {
+                $return[$relationship] = $this->{'selected_' . $relationship}($item);
+            } elseif (is_callable([$item, $relationship])) {
+                $return[$relationship] = $item->$relationship->pluck($this->model->{$relationship}()->getRelated()->getKeyName())->all();
+            }
+        }
+        return $return;
+    }
+
 
     /**
      * @return \Illuminate\Database\Eloquent\Collection
