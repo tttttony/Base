@@ -1,10 +1,13 @@
 <?php namespace Modules\Base\Entities;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class BaseEntity extends Model
 {
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+    }
 
     /**
      * Sync Relationships

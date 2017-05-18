@@ -42,10 +42,10 @@ class BaseServiceProvider extends ServiceProvider {
             \Modules\Base\Services\UserServiceContract::class,
             \Modules\Base\Services\UserService::class
         );
-        $this->app->bind(
-            \Modules\Base\Repositories\BaseRepository::class,
-            function(){ return new \Modules\Base\Repositories\Eloquent\EloquentBaseRepository(new \Modules\Base\Entities\BaseEntity()); }
-        );
+//        $this->app->bind(
+//            \Modules\Base\Repositories\BaseRepository::class,
+//            function(){ return new \Modules\Base\Repositories\Eloquent\EloquentBaseRepository(new \Modules\Base\Entities\BaseEntity()); }
+//        );
 	}
 
 	/**

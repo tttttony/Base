@@ -1,6 +1,8 @@
 <?php namespace Modules\Base\Repositories\Eloquent;
 
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\App;
+use Modules\Base\Entities\BaseEntity;
 use Modules\Base\Entities\Traits\Filterable;
 use Modules\Base\Exceptions\GeneralException;
 use Modules\Base\Repositories\BaseRepository;
@@ -42,6 +44,16 @@ abstract class EloquentBaseRepository implements BaseRepository
         $this->validFilterableFields[] = 'slug';
         $this->validFilterableFields[] = 'name';
         $this->validFilterableFields[] = 'active';
+
+        if(
+            env('SITE_CODE')
+            and method_exists($this->model, 'properties')
+            and $this->model->properties() instanceof Relation
+        ) {
+            $this->relationships[] = 'properties';
+            $this->validFilterableFields[] = 'properties.code';
+            $this->addFilter('properties.code', env('SITE_CODE'));
+        }
     }
 
     public function query()
@@ -75,9 +87,9 @@ abstract class EloquentBaseRepository implements BaseRepository
         return $query->orderBy($this->sortBy, $this->sortOrder);
     }
 
-    public function syncRelationships($id, $data, $relationships = [])
+    public function syncRelationships($item, $data, $relationships = [], $new = false)
     {
-        if ($item = $this->find($id)) {
+        if ($item instanceof BaseEntity) {
             if (empty($relationships)) {
                 if (!property_exists($this, 'relationships') || !is_array($this->relationships)) {
                     return $this;
@@ -87,6 +99,10 @@ abstract class EloquentBaseRepository implements BaseRepository
 
             foreach ($relationships as $relationship) {
                 if (env('SITE_CODE') != null and $relationship == 'properties') {
+                    if($new and env('SITE_CODE')) {
+                        $this->attachObject('properties', $item, [env('SITE_CODE')]);
+                    }
+
                     continue;
                 }
 
@@ -150,7 +166,6 @@ abstract class EloquentBaseRepository implements BaseRepository
         return $return;
     }
 
-
     /**
      * @return \Illuminate\Database\Eloquent\Collection
      */
@@ -182,7 +197,7 @@ abstract class EloquentBaseRepository implements BaseRepository
     public function create($data)
     {
         $item = $this->model->create($data);
-        $this->syncRelationships($item->getKey(), (isset($data))?$data:[]);
+        $this->syncRelationships($item, (isset($data))?$data:[], [],true);
         return $item;
     }
 
@@ -195,7 +210,7 @@ abstract class EloquentBaseRepository implements BaseRepository
     {
         if($item = $this->find($id)) {
             $item->update($data);
-            $this->syncRelationships($item->getKey(), (isset($data))?$data:[]);
+            $this->syncRelationships($item, (isset($data))?$data:[]);
             return $item;
         }
         throw new GeneralException(trans('Unexpected Error: Item not found.'));
@@ -231,6 +246,7 @@ abstract class EloquentBaseRepository implements BaseRepository
     {
         return $this->filterAndSort($this->query())->findMany($ids);
     }
+
     /**
      * Clear the cache for this Repositories' Entity
      * @return bool

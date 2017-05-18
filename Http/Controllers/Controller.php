@@ -8,8 +8,10 @@ use Modules\Base\Repositories\BaseRepository;
 class Controller extends BaseController
 {
     protected $repository;
-    public function __construct(BaseRepository $repository) {
-        $this->repository = $repository;
+    public function __construct($repository = null) {
+        if($repository instanceof BaseRepository) {
+            $this->repository = $repository;
+        }
     }
 
     /**
@@ -21,17 +23,19 @@ class Controller extends BaseController
         if($request->has('sites_data')) {
             $ssd = $request->input('sites_data');
             foreach ($ssd as $site_code => $data) {
-                $repo_class = 'Sites\\' . strtoupper($site_code) . '\Repositories\Eloquent\\' . class_basename($this->repository);
+                if($site_code == env('SITE_CODE') or (!empty($request->input('properties')) and in_array($site_code, $request->input('properties')))) {
+                    $repo_class = 'Sites\\' . strtoupper($site_code) . '\Repositories\Eloquent\\' . class_basename($this->repository);
 
-                if (! class_exists($repo_class)) {
-                    $repo_class = get_class($this->repository);
-                }
+                    if (!class_exists($repo_class)) {
+                        $repo_class = get_class($this->repository);
+                    }
 
-                $model_class = 'Sites\\' . strtoupper($site_code) . '\Entities\\' . $this->repository->getModelName();
+                    $model_class = 'Sites\\' . strtoupper($site_code) . '\Entities\\' . $this->repository->getModelName();
 
-                if (class_exists($model_class)) {
-                    $product = new $repo_class(new $model_class);
-                    $product->update($id, $data);
+                    if (class_exists($model_class)) {
+                        $product = new $repo_class(new $model_class);
+                        $product->update($id, $data);
+                    }
                 }
             }
         }
