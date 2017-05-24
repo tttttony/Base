@@ -45,14 +45,19 @@ abstract class EloquentBaseRepository implements BaseRepository
         $this->validFilterableFields[] = 'name';
         $this->validFilterableFields[] = 'active';
 
+        if(empty($this->relationships)) {
+            $this->relationships = [];
+        }
+
         if(
-            env('SITE_CODE')
-            and method_exists($this->model, 'properties')
+            method_exists($this->model, 'properties')
             and $this->model->properties() instanceof Relation
         ) {
             $this->relationships[] = 'properties';
             $this->validFilterableFields[] = 'properties.code';
-            $this->addFilter('properties.code', env('SITE_CODE'));
+            if(env('SITE_CODE')) {
+                $this->addFilter('properties.code', env('SITE_CODE'));
+            }
         }
     }
 
@@ -114,7 +119,7 @@ abstract class EloquentBaseRepository implements BaseRepository
 
             return $this;
         }
-        throw new GeneralException(__('products::product.error.not_found'));
+        throw new GeneralException(__('not found'));
     }
 
     /**
@@ -146,9 +151,24 @@ abstract class EloquentBaseRepository implements BaseRepository
      */
     public function find($id)
     {
-        if ($item = $this->filterAndSort($this->query())->find($id)) {
+        //first check the id
+        if (
+            ( is_numeric($id) or ! $this->model->getIncrementing() )
+            and $item = $this->filterAndSort($this->query())->find($id) /* intentional assignment */
+        ) {
             return $item;
         }
+
+        //then if check slug
+        if (
+            ! is_int($id)
+            and $this->model->getAttribute('slug')
+            and $item = $this->addFilter('slug', $id)->filterAndSort($this->query())->first() /* intentional assignment */
+        ) {
+            return $item;
+        }
+
+
         throw new GeneralException(trans('Unexpected Error: Item not found.'));
     }
 
@@ -223,18 +243,6 @@ abstract class EloquentBaseRepository implements BaseRepository
     public function destroy($id)
     {
         return $this->find($id)->delete();
-    }
-
-    /**
-     * Find a resource by the given slug
-     *
-     * @param  string $slug
-     * @return object
-     */
-    public function findBySlug($slug)
-    {
-        $this->addFilter('slug', $slug);
-        return $this->filterAndSort($this->query())->first();
     }
 
     /**

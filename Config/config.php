@@ -8,6 +8,9 @@ return [
      */
     'users_table' => 'users',
 
+
+    'sluggable_table' => 'sluggables',
+
     /*
      * Role model used by Access to create correct relations. Update the role if it is in a different namespace.
     */

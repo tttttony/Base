@@ -46,13 +46,6 @@ interface BaseRepository
     public function destroy($model);
 
     /**
-     * Find a resource by the given slug
-     * @param  int $slug
-     * @return object
-     */
-    public function findBySlug($slug);
-
-    /**
      * Return a collection of elements who's ids match
      * @param array $ids
      * @return mixed
