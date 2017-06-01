@@ -92,7 +92,7 @@ abstract class EloquentBaseRepository implements BaseRepository
         return $query->orderBy($this->sortBy, $this->sortOrder);
     }
 
-    public function syncRelationships($item, $data, $relationships = [], $new = false)
+    public function syncRelationships(&$item, $data, $relationships = [], $new = false)
     {
         if ($item instanceof BaseEntity) {
             if (empty($relationships)) {
@@ -128,7 +128,7 @@ abstract class EloquentBaseRepository implements BaseRepository
      * @param array $object_ids
      * @return $this
      */
-    public function attachObject($object, $item, $object_ids = [])
+    public function attachObject($object, &$item, $object_ids = [])
     {
         $method = 'attach' . ucfirst($object);
 
@@ -162,8 +162,8 @@ abstract class EloquentBaseRepository implements BaseRepository
         //then if check slug
         if (
             ! is_int($id)
-            and $this->model->getAttribute('slug')
-            and $item = $this->addFilter('slug', $id)->filterAndSort($this->query())->first() /* intentional assignment */
+            and method_exists($this->model, 'getSlug')
+            and $item = $this->addFilter('slug.slug', $id)->filterAndSort($this->query())->first() /* intentional assignment */
         ) {
             return $item;
         }
@@ -218,6 +218,16 @@ abstract class EloquentBaseRepository implements BaseRepository
     {
         $item = $this->model->create($data);
         $this->syncRelationships($item, (isset($data))?$data:[], [],true);
+
+        /*
+
+            Huge hack for sluggables, should be fixed somehow, race condition
+            Maybe touching the parent's timestamps on property relationship update?
+
+        */
+        $item = $this->find($item->id);
+        $item->save();
+
         return $item;
     }
 
@@ -229,8 +239,8 @@ abstract class EloquentBaseRepository implements BaseRepository
     public function update($id, $data)
     {
         if($item = $this->find($id)) {
-            $item->update($data);
             $this->syncRelationships($item, (isset($data))?$data:[]);
+            $item->update($data);
             return $item;
         }
         throw new GeneralException(trans('Unexpected Error: Item not found.'));

@@ -28,8 +28,8 @@ interface BaseRepository
      */
     public function create($data);
 
-    public function syncRelationships($id, $data, $relationships = []);
-    public function attachObject($object, $item, $object_ids = []);
+    public function syncRelationships(&$item, $data, $relationships = []);
+    public function attachObject($object, &$item, $object_ids = []);
     /**
      * Update a resource
      * @param $model

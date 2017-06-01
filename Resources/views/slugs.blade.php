@@ -6,7 +6,7 @@
                 @foreach($item->getSlug() as $property => $slug)
                     <tr>
                         <td>{{ $property }}</td>
-                        <td>{{ ($slug->slug) ?: 'N/A' }}</td>
+                        <td>{{ (!empty($slug->slug)) ? $slug->slug: 'N/A' }}</td>
                     </tr>
                 @endforeach
             </table>
