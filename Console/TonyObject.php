@@ -403,17 +403,17 @@ class {$this->object_plural}Controller extends Controller {
 	/**
 	 * @var {$this->object_plural}Repository
 	 */
-	private \${$lower_object};
+	private \${$lower_object_plural}Repository;
 
 	public function __construct(
-		{$this->object_plural}Repository \${$lower_object}
+		{$this->object_plural}Repository \${$lower_object_plural}Repository
 	) {
-		\$this->{$lower_object} = \${$lower_object};
+		\$this->{$lower_object_plural}Repository = \${$lower_object_plural}Repository;
 	}
 
 	public function index()
 	{
-		\${$lower_object_plural} = \$this->{$lower_object}->paginate();
+		\${$lower_object_plural} = \$this->{$lower_object_plural}Repository->paginate();
 		return view('{$lower_module}::{$lower_object_plural}.index', compact('{$lower_object_plural}'));
 	}
 
@@ -433,7 +433,7 @@ class {$this->object_plural}Controller extends Controller {
 	 */
 	public function store(Store{$this->object}Request \$request)
 	{
-		\$this->{$lower_object}->create(\$request->all());
+		\$this->{$lower_object_plural}Repository->create(\$request->all());
 
         flash(__('{$lower_module}::{$lower_object}.actions.created'), 'success');
 		return redirect()->route('admin.{$lower_module}.{$lower_object_plural}.index');
@@ -446,7 +446,7 @@ class {$this->object_plural}Controller extends Controller {
 	 */
 	public function edit(\$id, Edit{$this->object}Request \$request)
 	{
-		\${$lower_object} = \$this->{$lower_object}->find(\$id);
+		\${$lower_object} = \$this->{$lower_object_plural}Repository->find(\$id);
 		return view('{$lower_module}::{$lower_object_plural}.edit', compact('{$lower_object}'));
 	}
 
@@ -457,7 +457,7 @@ class {$this->object_plural}Controller extends Controller {
 	 */
 	public function update(\$id, Store{$this->object}Request \$request)
 	{
-		\$this->{$lower_object}->update(\$id, \$request->all());
+		\$this->{$lower_object_plural}Repository->update(\$id, \$request->all());
         flash(__('{$lower_module}::{$lower_object}.actions.updated'), 'success');
 		return redirect()->route('admin.{$lower_module}.{$lower_object_plural}.index', [\$id]);
 	}
@@ -469,7 +469,7 @@ class {$this->object_plural}Controller extends Controller {
 	 */
 	public function destroy(\$id, Delete{$this->object}Request \$request)
 	{
-		\$this->{$lower_object}->destroy(\$id);
+		\$this->{$lower_object_plural}Repository->destroy(\$id);
         flash(__('{$lower_module}::{$lower_object}.actions.deleted'), 'success');
 		return redirect()->back();
 	}
@@ -593,13 +593,9 @@ FILE;
 @endsection
 
 @section('content')
-    <div class="card panel-default">
-        <div class="card-block">
-            {!! Form::open(['route' => ['admin.{$lower_module}.{$lower_object_plural}.store'], 'id' => '{$lower_object_plural}_form']) !!}
-            @include('{$lower_module}::{$lower_object_plural}.form')
-            {!! Form::close() !!}
-        </div>
-    </div>
+    {!! Form::open(['route' => ['admin.{$lower_module}.{$lower_object_plural}.store'], 'id' => '{$lower_object_plural}_form']) !!}
+    @include('{$lower_module}::{$lower_object_plural}.form')
+    {!! Form::close() !!}
 @stop
 FILE;
     }
@@ -633,13 +629,9 @@ FILE;
 @endsection
 
 @section('content')
-    <div class="card panel-default">
-        <div class="card-block">
-            {!! Form::model(\${$lower_object}, ['route' => ['admin.{$lower_module}.{$lower_object_plural}.update', \${$lower_object}->id], 'id' => '{$lower_object_plural}_form', 'role' => 'form', 'method' => 'PATCH']) !!}
-                @include('{$lower_module}::{$lower_object_plural}.form')
-            {!! Form::close() !!}
-        </div>
-    </div>
+    {!! Form::model(\${$lower_object}, ['route' => ['admin.{$lower_module}.{$lower_object_plural}.update', \${$lower_object}->id], 'id' => '{$lower_object_plural}_form', 'role' => 'form', 'method' => 'PATCH']) !!}
+        @include('{$lower_module}::{$lower_object_plural}.form')
+    {!! Form::close() !!}
 @stop
 FILE;
     }
@@ -650,10 +642,21 @@ FILE;
         $lower_object = strtolower($this->object);
 
         return <<<FILE
-<div class="form-group">
-    {!! Form::label('name', trans('{$lower_module}::{$lower_object}.form.labels.name'), ['class' => 'form-control-label']) !!}
-    <div class="control-input">
-        {!! Form::text('name', null, ['class' => 'form-control', 'placeholder' => trans('{$lower_module}::{$lower_object}.form.placeholders.name')]) !!}
+<div class="row mb-4">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-header">
+                
+            </div>
+            <div class="card-block">
+                <div class="form-group">
+                    {!! Form::label('name', trans('{$lower_module}::{$lower_object}.form.labels.name'), ['class' => 'form-control-label']) !!}
+                    <div class="control-input">
+                        {!! Form::text('name', null, ['class' => 'form-control', 'placeholder' => trans('{$lower_module}::{$lower_object}.form.placeholders.name')]) !!}
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 FILE;

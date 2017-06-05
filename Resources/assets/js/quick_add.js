@@ -23,27 +23,39 @@ if(quick_adds.length > 0) {
     });
 }
 
+
 for (var i = 0, i_length = quick_adds.length; i < i_length; i++) {
     var item = quick_adds.item(i);
 
     var add_button = item.getElementsByClassName('add-relationship').item(0);
 
+    // TODO: change to on submit of form
     add_button.addEventListener('click', function (e) {
         e.preventDefault();
-
+        var item = e.target.closest('.relationship');
         var add_forms = item.getElementsByClassName('add-form');
-        quickadd_modal.setContent(add_forms[0].innerHTML);
+
+        quickadd_modal.setContent(add_forms.item(0).innerHTML);
         quickadd_modal.setFooterContent('');
 
         quickadd_modal.addFooterBtn('Add', 'btn btn-primary float-right', function(){
             var forms = this.closest('.tingle-modal-box').getElementsByTagName('form');
-            var form = forms[0];
+            var form = forms.item(0);
             var data = {};
 
             var elements = form.elements;
             for (e = 0; e < elements.length; e++) {
                 if (elements[e].name.length) {
-                    data[elements[e].name] = elements[e].value;
+                    if(elements[e].name.match(/(.*)\[(.*)]/)) {
+                        var matches = /(.*)\[(.*)]/.exec(elements[e].name);
+                        if(! data[matches[1]]) {
+                            data[matches[1]] = {};
+                        }
+                        data[matches[1]][matches[2]] = elements[e].value;
+                    }
+                    else {
+                        data[elements[e].name] = elements[e].value;
+                    }
                 }
             }
 
@@ -53,12 +65,15 @@ for (var i = 0, i_length = quick_adds.length; i < i_length; i++) {
                     if(res.statusCode == 200) {
                         data = JSON.parse(res.text);
 
-                        var option = document.createElement("option");
-                        option.text = data.data.name;
-                        option.value = data.data.id;
-                        option.selected = true;
+                        var option = '<option value="' + data.data.id + '" selected>' + data.data.name + '</option>';
                         var select = item.getElementsByTagName("select");
-                        select.item(0).appendChild(option);
+
+                        if(select.item(0).getAttribute('multiple')) {
+                            select.item(0).innerHTML = select.item(0).innerHTML + option;
+                        }
+                        else {
+                            select.item(0).innerHTML = option;
+                        }
 
 
                         // Hack until choices.js is fixed for already init'd elements
@@ -71,12 +86,18 @@ for (var i = 0, i_length = quick_adds.length; i < i_length; i++) {
                         choice.setAttribute('aria-selected', true);
                         choice.setAttribute('data-deletable', true);
                         choice.innerHTML = data.data.name+'<button type="button" class="choices__button" data-button="">Remove item</button>';
-                        choiceList.appendChild(choice);
 
+                        if(select.item(0).getAttribute('multiple')) {
+                            choiceList.appendChild(choice);
+                        }
+                        else {
+                            choiceList.innerHTML = choice.outerHTML;
+                        }
 
                         quickadd_modal.close();
                     }
                 });
+
         });
 
         quickadd_modal.addFooterBtn('Cancel', 'btn btn-white float-right', function(){

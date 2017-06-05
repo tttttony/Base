@@ -149,7 +149,7 @@ FILE;
 	},
 	"autoload": {
 		"psr-4": {
-			"Modules\\{$this->module}\\": ""
+			"Modules\\\\{$this->module}\\\\": ","
 		}
 	}
 }

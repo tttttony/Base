@@ -172,15 +172,29 @@ abstract class EloquentBaseRepository implements BaseRepository
         throw new GeneralException(trans('Unexpected Error: Item not found.'));
     }
 
-    public function selected_relationships($id)
+    public function selected_relationships($id, $load_objects = false)
     {
         $return = [];
         $item = $this->find($id);
+
+        $load_objects_for = [];
+        if($load_objects === true) {
+            $load_objects_for = $this->relationships;
+        }
+        elseif (is_array($load_objects)) {
+            $load_objects_for = $load_objects;
+        }
+
         foreach ($this->relationships as $relationship) {
             if (method_exists($this, 'selected_' . $relationship)) {
-                $return[$relationship] = $this->{'selected_' . $relationship}($item);
+                $return[$relationship] = $this->{'selected_' . $relationship}($item, $load_objects_for);
             } elseif (is_callable([$item, $relationship])) {
-                $return[$relationship] = $item->$relationship->pluck($this->model->{$relationship}()->getRelated()->getKeyName())->all();
+                if(in_array($relationship, $load_objects_for)) {
+                    $return[$relationship] = $item->$relationship->all();
+                }
+                else {
+                    $return[$relationship] = $item->$relationship->pluck($this->model->{$relationship}()->getRelated()->getKeyName())->all();
+                }
             }
         }
         return $return;
