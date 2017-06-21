@@ -649,12 +649,7 @@ FILE;
                 
             </div>
             <div class="card-block">
-                <div class="form-group">
-                    {!! Form::label('name', trans('{$lower_module}::{$lower_object}.form.labels.name'), ['class' => 'form-control-label']) !!}
-                    <div class="control-input">
-                        {!! Form::text('name', null, ['class' => 'form-control', 'placeholder' => trans('{$lower_module}::{$lower_object}.form.placeholders.name')]) !!}
-                    </div>
-                </div>
+                @include('inputs.text', ['input' => ['name' => 'name', 'label' => '{$lower_module}::{$lower_object}.form.labels.name']])
             </div>
         </div>
     </div>

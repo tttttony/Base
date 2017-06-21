@@ -14,7 +14,7 @@ class SetupAccessTables extends Migration
     {
         Schema::table(config('base.users_table'), function ($table) {
             $table->tinyInteger('status')->after('password')->default(1)->unsigned();
-            $table->string('username')->after('id')->unique();
+            $table->string('username')->after('id')->unique()->nullable();
         });
 
         Schema::create(config('base.roles_table'), function ($table) {

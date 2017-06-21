@@ -1,39 +1,11 @@
 //Quick Add
 var request = require('superagent');
 
-var choices = document.querySelectorAll("select.choices");
-
-var quick_adds = document.getElementsByClassName("relationship");
-if(quick_adds.length > 0) {
-    var quickadd_modal = new tingle.modal({
-        footer: true,
-        stickyFooter: false,
-        closeMethods: ['escape'],
-        closeLabel: "Cancel",
-        cssClass: ['custom-class-1', 'custom-class-2'],
-        onOpen: function() {
-            console.log('modal open');
-        },
-        onClose: function() {
-            console.log('modal close');
-        },
-        beforeClose: function() {
-            return true; // close the modal
-        }
-    });
-}
-
-
-for (var i = 0, i_length = quick_adds.length; i < i_length; i++) {
-    var item = quick_adds.item(i);
-
-    var add_button = item.getElementsByClassName('add-relationship').item(0);
-
-    // TODO: change to on submit of form
-    add_button.addEventListener('click', function (e) {
+var quick_add = (function() {
+    var click_add = function(e) {
         e.preventDefault();
         var item = e.target.closest('.relationship');
-        var add_forms = item.getElementsByClassName('add-form');
+        var add_forms = (e.target.getAttribute('data-template'))? item.getElementsByClassName(e.target.getAttribute('data-template')): item.getElementsByClassName('add-form');
 
         quickadd_modal.setContent(add_forms.item(0).innerHTML);
         quickadd_modal.setFooterContent('');
@@ -105,5 +77,36 @@ for (var i = 0, i_length = quick_adds.length; i < i_length; i++) {
         });
 
         quickadd_modal.open();
-    });
-}
+    }
+
+    var choices = document.querySelectorAll("select.choices");
+
+    var quick_adds = document.getElementsByClassName("relationship");
+    if(quick_adds.length > 0) {
+        var quickadd_modal = new tingle.modal({
+            footer: true,
+            stickyFooter: false,
+            closeMethods: ['escape'],
+            closeLabel: "Cancel",
+            cssClass: [],
+            onOpen: function() {
+
+            },
+            onClose: function() {
+
+            },
+            beforeClose: function() {
+                return true; // close the modal
+            }
+        });
+    }
+
+
+    for (var i = 0, i_length = quick_adds.length; i < i_length; i++) {
+        var item = quick_adds.item(i);
+
+        var add_button = item.getElementsByClassName('add-relationship').item(0);
+
+        add_button.addEventListener('click', click_add);
+    }
+})();
