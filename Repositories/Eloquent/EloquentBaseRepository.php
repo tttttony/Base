@@ -162,10 +162,12 @@ abstract class EloquentBaseRepository implements BaseRepository
         //then if check slug
         if (
             ! is_int($id)
-            and method_exists($this->model, 'getSlug')
-            and $item = $this->addFilter('slug.slug', $id)->filterAndSort($this->query())->first() /* intentional assignment */
+            and method_exists($this->model, 'lookUpBySlug')
+            and $items_collection = $this->model->lookUpBySlug($id) /* intentional assignment */
+            and count($items_collection) > 0
         ) {
-            return $item;
+            $slug = $items_collection->first();
+            return $this->filterAndSort($this->query())->find($slug->sluggable_id);
         }
 
 
