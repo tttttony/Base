@@ -27,6 +27,30 @@ trait Sluggable
         return $slugs;
     }
 
+    public function lookUpBySlug($slug) {
+        if(env('SITE_CODE')) {
+            $search = [
+                ['slug', $slug],
+                ['sluggable_type', $this->getMorphClass()],
+                ['property_code', env('SITE_CODE')]
+            ];
+        }
+        else {
+            $search = [
+                ['slug', $slug],
+                ['sluggable_type', $this->getMorphClass()]
+            ];
+        }
+
+        if (
+            !empty($check = Slug::where($search)->get())
+            or !empty($check = UuidSlug::where($search)->get())
+        ) {
+            return $check;
+        }
+        return false;
+    }
+
     protected function getSlugByProperty($property) {
         $search = [ ['sluggable_id', $this->getKey()], ['sluggable_type', $this->getMorphClass()], ['property_code', $property] ];
         if (
