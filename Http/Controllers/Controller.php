@@ -41,6 +41,7 @@ class Controller extends BaseController
         }
     }
 
+    // TODO: next two methods need to be DRY'ed
     public function updateWithImages($request) {
         $images = $request->has('files-keep-data.*.id')? $request->input('files-keep-data.*.id'): [];
         $remove_images = $request->has('files-remove-data.*.id')? $request->input('files-remove-data.*.id'): [];
@@ -60,5 +61,26 @@ class Controller extends BaseController
             }
         }
         return $images;
+    }
+
+    public function updateWithFile($request) {
+        $files = $request->has('files-keep-data.*.id')? $request->input('files-keep-data.*.id'): [];
+        $remove_files = $request->has('files-remove-data.*.id')? $request->input('files-remove-data.*.id'): [];
+
+        if($request->hasFile("files")) {
+            // fileService is declared by the extending controller
+            $ids = $this->fileService->createBatch($request->file("files"), ($request->only('files-data')) ? $request->only('files-data') : []);
+            foreach($ids as $new_id) {
+                $files[] = $new_id;
+            }
+        }
+        if(!empty($remove_files) && !empty($files)) {
+            foreach($files as $k => $file) {
+                if(in_array($file, $remove_files)) {
+                    unset($files[$k]);
+                }
+            }
+        }
+        return $files;
     }
 }

@@ -1,7 +1,4 @@
-//Quick Add
-var request = require('superagent');
-
-var quick_add = (function() {
+(function() {
     var click_add = function(e) {
         e.preventDefault();
         var item = e.target.closest('.relationship');
@@ -31,7 +28,7 @@ var quick_add = (function() {
                 }
             }
 
-            request.post(form.getAttribute('action'))
+            window.request.post(form.getAttribute('action'))
                 .send(data)
                 .end(function(err, res){
                     if(res.statusCode == 200) {

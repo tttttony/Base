@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\App;
 use Modules\Base\Entities\BaseEntity;
 use Modules\Base\Entities\Traits\Filterable;
 use Modules\Base\Exceptions\GeneralException;
+use Modules\Base\Http\Requests\Request;
 use Modules\Base\Repositories\BaseRepository;
 /**
  * Class EloquentBaseRepository
@@ -162,10 +163,12 @@ abstract class EloquentBaseRepository implements BaseRepository
         //then if check slug
         if (
             ! is_int($id)
-            and method_exists($this->model, 'getSlug')
-            and $item = $this->addFilter('slug.slug', $id)->filterAndSort($this->query())->first() /* intentional assignment */
+            and method_exists($this->model, 'lookUpBySlug')
+            and $items_collection = $this->model->lookUpBySlug($id) /* intentional assignment */
+            and count($items_collection) > 0
         ) {
-            return $item;
+            $slug = $items_collection->first();
+            return $this->filterAndSort($this->query())->find($slug->sluggable_id);
         }
 
 
@@ -230,6 +233,7 @@ abstract class EloquentBaseRepository implements BaseRepository
      */
     public function create($data)
     {
+        // $data['active'] = isset($data['active']) ? 1 : 0;
         $item = $this->model->create($data);
         $this->syncRelationships($item, (isset($data))?$data:[], [],true);
 
@@ -252,6 +256,7 @@ abstract class EloquentBaseRepository implements BaseRepository
      */
     public function update($id, $data)
     {
+        // $data['active'] = isset($data['active']) ? 1 : 0;
         if($item = $this->find($id)) {
             $this->syncRelationships($item, (isset($data))?$data:[]);
             $item->update($data);

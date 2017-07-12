@@ -1,12 +1,35 @@
 <?php namespace Modules\Base\Entities;
 
 use Illuminate\Database\Eloquent\Model;
+use Modules\Base\Entities\Traits\Filterable;
 
 class BaseEntity extends Model
 {
+    use Filterable;
+
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
+    }
+
+    public function newQuery()
+    {
+        $query = parent::newQuery();
+
+        if(
+            method_exists($this, 'properties')
+            and $this->properties() instanceof Relation
+        ) {
+            //$this->relationships[] = 'properties';
+            //$this->validFilterableFields[] = 'properties.code';
+            if(env('SITE_CODE')) {
+                $query->whereHas('propertires', function ($q) {
+                    $q->where('code', env('SITE_CODE'));
+                });
+            }
+        }
+
+        return $query;
     }
 
     /**

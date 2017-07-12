@@ -6,6 +6,6 @@ class BaseTransformer extends TransformerAbstract
 {
     public function clearNullValues(&$array) {
         foreach($array as $k => $value)
-            if (empty($value)) unset($array[$k]);
+            if (empty($value) && $value !== false) unset($array[$k]);
     }
 }
