@@ -30,6 +30,8 @@ window.QuickAdd = window.QuickAdd || (function() {
                                 select.item(0).innerHTML = option;
                             }
 
+                            select.item(0).dispatchEvent(new Event('change'));
+
                             QuickAdd.hackForChoices(item, data, select);
 
                             quickadd_modal.close();
