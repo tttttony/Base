@@ -41,7 +41,7 @@ class Controller extends BaseController
         }
     }
 
-    // TODO: next two methods need to be DRY'ed
+    // TODO: next three methods need to be DRY'ed
     public function updateWithImages($request) {
         $images = $request->has('files-keep-data.*.id')? $request->input('files-keep-data.*.id'): [];
         $remove_images = $request->has('files-remove-data.*.id')? $request->input('files-remove-data.*.id'): [];
@@ -82,5 +82,15 @@ class Controller extends BaseController
             }
         }
         return $files;
+    }
+
+    public function updateWithImage($request) {
+        $image = $request->input('files-keep-data.*.id');
+        // TODO: Abstract handling images/files to the base controller
+        if($request->hasFile("image")) {
+            $new_image = $this->fileService->create($request->file("image"), ($request->only('files-data')) ? $request->only('files-data') : []);
+            $image = [$new_image->id];
+        }
+        return $image;
     }
 }

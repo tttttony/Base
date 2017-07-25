@@ -212,6 +212,14 @@ abstract class EloquentBaseRepository implements BaseRepository
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Model
+     */
+    public function first()
+    {
+        return $this->filterAndSort($this->query())->first();
+    }
+
+    /**
      * @return \Illuminate\Database\Eloquent\Collection
      */
     public function listAll($name_column = 'name')

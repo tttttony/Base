@@ -45,6 +45,13 @@ trait Filterable
                 if (property_exists($this, 'relationships') and in_array($relationship, $this->relationships)) {
                     $query->with($relationship)->whereHas($relationship, function ($q) use ($key, $comparision) {
                         switch(strtolower($comparision['operator'])) {
+                            case null:
+                            case 'null':
+                                $q->whereNull($key);
+                                break;
+                            case '!null':
+                                $q->whereNull($key);
+                                break;
                             case 'in':
                                 $q->whereIn($key, $comparision['value']);
                                 break;

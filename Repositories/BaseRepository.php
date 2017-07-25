@@ -17,8 +17,20 @@ interface BaseRepository
      */
     public function all();
 
+    /**
+     * @return mixed
+     */
+    public function first();
+
+    /**
+     * @return mixed
+     */
     public function listAll();
 
+    /**
+     * @param int $perPage
+     * @return mixed
+     */
     public function paginate($perPage = 100);
 
     /**
@@ -28,8 +40,22 @@ interface BaseRepository
      */
     public function create($data);
 
+    /**
+     * @param $item
+     * @param $data
+     * @param array $relationships
+     * @return mixed
+     */
     public function syncRelationships(&$item, $data, $relationships = []);
+
+    /**
+     * @param $object
+     * @param $item
+     * @param array $object_ids
+     * @return mixed
+     */
     public function attachObject($object, &$item, $object_ids = []);
+
     /**
      * Update a resource
      * @param $model
