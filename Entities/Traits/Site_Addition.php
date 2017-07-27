@@ -10,6 +10,14 @@ trait Site_Addition
         $this->with[] = 'siteSpecificData';
     }
 
+    public function createSsdRecord() {
+        if(!isset($this->siteSpecificData)) {
+            $foreign_key = $this->siteSpecificData()->getForeignKeyName();
+            $this->dataToUse()->setAttribute($foreign_key, $this->getKey());
+            $this->dataToUse()->save();
+        }
+    }
+
     public function siteSpecificData()
     {
         return $this->hasOne($this->site_class);
@@ -83,9 +91,6 @@ trait Site_Addition
     public function save(array $options = [])
     {
         $save = parent::save($options);
-        $foreign_key = $this->siteSpecificData()->getForeignKeyName();
-        $this->dataToUse()->setAttribute($foreign_key, $this->getKey());
-        $this->dataToUse()->save();
         return $save;
     }
 }

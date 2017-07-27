@@ -178,7 +178,7 @@ abstract class EloquentBaseRepository implements BaseRepository
     public function selected_relationships($id, $load_objects = false)
     {
         $return = [];
-        $item = $this->find($id);
+        $item = $this->model->find($id);
 
         $load_objects_for = [];
         if($load_objects === true) {
@@ -265,7 +265,7 @@ abstract class EloquentBaseRepository implements BaseRepository
     public function update($id, $data)
     {
         // $data['active'] = isset($data['active']) ? 1 : 0;
-        if($item = $this->find($id)) {
+        if($item = $this->model->find($id)) {
             $this->syncRelationships($item, (isset($data))?$data:[]);
             $item->update($data);
             return $item;

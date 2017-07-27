@@ -23,7 +23,10 @@ class Controller extends BaseController
         if($request->has('sites_data')) {
             $ssd = $request->input('sites_data');
             foreach ($ssd as $site_code => $data) {
-                if($site_code == env('SITE_CODE') or (!empty($request->input('properties')) and in_array($site_code, $request->input('properties')))) {
+                if(
+                    $site_code == env('SITE_CODE')
+                    or (!empty($request->input('properties')) and in_array($site_code, $request->input('properties')))
+                ) {
                     $repo_class = 'Sites\\' . strtoupper($site_code) . '\Repositories\Eloquent\\' . class_basename($this->repository);
 
                     if (!class_exists($repo_class)) {
@@ -33,8 +36,8 @@ class Controller extends BaseController
                     $model_class = 'Sites\\' . strtoupper($site_code) . '\Entities\\' . $this->repository->getModelName();
 
                     if (class_exists($model_class)) {
-                        $product = new $repo_class(new $model_class);
-                        $product->update($id, $data);
+                        $object = new $repo_class(new $model_class);
+                        $object->update($id, $data);
                     }
                 }
             }
