@@ -44,22 +44,23 @@ trait Filterable
 
                 if (property_exists($this, 'relationships') and in_array($relationship, $this->relationships)) {
                     $query->with($relationship)->whereHas($relationship, function ($q) use ($key, $comparision) {
+                        $table = $q->getModel()->getTable();
                         switch(strtolower($comparision['operator'])) {
                             case null:
                             case 'null':
-                                $q->whereNull($key);
+                                $q->whereNull($table . '.' . $key);
                                 break;
                             case '!null':
-                                $q->whereNull($key);
+                                $q->whereNull($table . '.' . $key);
                                 break;
                             case 'in':
-                                $q->whereIn($key, $comparision['value']);
+                                $q->whereIn($table . '.' . $key, $comparision['value']);
                                 break;
                             case'!in':
-                                $q->whereNotIn($key, $comparision['value']);
+                                $q->whereNotIn($table . '.' . $key, $comparision['value']);
                                 break;
                             default:
-                                $q->where($key, $comparision['operator'], $comparision['value']);
+                                $q->where($table . '.' . $key, $comparision['operator'], $comparision['value']);
                                 break;
                         }
                     });
