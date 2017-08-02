@@ -33,8 +33,12 @@ class RouteNeedsPermission
         }
 
         if (! $access) {
-            flash('error', trans('auth.general_error'));
-            return redirect('/'); //->route('frontend.index');
+            if ($request->ajax() || $request->wantsJson()) {
+                return response('Unauthorized.', 401);
+            } else {
+                flash('error', trans('auth.general_error'));
+                return redirect('/'); //->route('frontend.index');
+            }
         }
 
         return $next($request);
