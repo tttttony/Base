@@ -33,6 +33,7 @@ class EloquentUserRepository extends EloquentBaseRepository implements UserRepos
      */
     public function __construct(RoleRepository $role, User $user)
     {
+        parent::__construct($user);
         $this->role = $role;
         $this->user = $user;
     }
@@ -148,7 +149,8 @@ class EloquentUserRepository extends EloquentBaseRepository implements UserRepos
                 'status' => 1,
             ]);
         } else {
-            $user = new \Modules\Users\Entities\User();
+            $user_class = get_class($this->user);
+            $user = new $user_class();
             $user->fill($data)->save();
 //
 //            $user = $this->user->create([

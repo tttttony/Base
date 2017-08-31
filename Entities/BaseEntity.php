@@ -23,7 +23,7 @@ class BaseEntity extends Model
             //$this->relationships[] = 'properties';
             //$this->validFilterableFields[] = 'properties.code';
             if(env('SITE_CODE')) {
-                $query->whereHas('propertires', function ($q) {
+                $query->whereHas('properties', function ($q) {
                     $q->where('code', env('SITE_CODE'));
                 });
             }

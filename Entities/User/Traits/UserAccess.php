@@ -1,7 +1,5 @@
 <?php namespace Modules\Base\Entities\User\Traits;
 
-use Modules\Base\Entities\Role\Role;
-
 /**
  * Class UserAccess
  * @package Modules\Base\Entities\User\Traits

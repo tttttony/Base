@@ -11,11 +11,8 @@ trait Site_Addition
     }
 
     public function createSsdRecord() {
-        if(!isset($this->siteSpecificData)) {
-            $foreign_key = $this->siteSpecificData()->getForeignKeyName();
-            $this->dataToUse()->setAttribute($foreign_key, $this->getKey());
-            $this->dataToUse()->save();
-        }
+        //TODO: This can be removed, it should handle everything on save()
+        $this->save();
     }
 
     public function siteSpecificData()
@@ -29,9 +26,15 @@ trait Site_Addition
             $this->data = new $this->site_class;
     }
 
-    public function shouldUse($key)
+    public function shouldUse($key, $must_be_fillable = false)
     {
-        return ($key != 'siteSpecificData' and $this->dataToUse()->isFillable($key));
+        return (
+            $key != 'siteSpecificData'
+            and (
+                !$must_be_fillable
+                || $this->dataToUse()->isFillable($key)
+            )
+        );
     }
 
     public function dataToUse()
@@ -40,17 +43,22 @@ trait Site_Addition
         return (!isset($this->siteSpecificData))? $this->data: $this->siteSpecificData;
     }
 
+    public function setDefaults() {
+        $foreign_key = $this->siteSpecificData()->getForeignKeyName();
+        $this->dataToUse()->setAttribute($foreign_key, $this->{$this->getKeyName()});
+    }
+
     public function __get($key)
     {
         if($this->shouldUse($key))
-            return $this->dataToUse()->$key;
+            return (empty($this->dataToUse()->$key) && !empty(parent::__get($key)))? parent::__get($key): $this->dataToUse()->$key;
 
         return parent::__get($key);
     }
 
     public function __set($key, $value)
     {
-        if($this->shouldUse($key))
+        if($this->shouldUse($key, true))
             return $this->dataToUse()->$key = $value;
 
         return parent::__set($key, $value);
@@ -74,7 +82,7 @@ trait Site_Addition
 
     public function __call($method, $parameters)
     {
-        if($this->shouldUse($method))
+        if($this->shouldUse($method, true))
             return $this->dataToUse()->__call($method, $parameters);
 
         return parent::__call($method, $parameters);
@@ -91,6 +99,8 @@ trait Site_Addition
     public function save(array $options = [])
     {
         $save = parent::save($options);
+        $this->setDefaults();
+        $this->dataToUse()->save($options);
         return $save;
     }
 }
