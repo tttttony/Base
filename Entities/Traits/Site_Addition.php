@@ -32,8 +32,9 @@ trait Site_Addition
             $key != 'siteSpecificData'
             and (
                 !$must_be_fillable
-                || $this->dataToUse()->isFillable($key)
-            )
+				|| $this->dataToUse()->isFillable($key)
+			)
+			and $key !== 'id'
         );
     }
 
