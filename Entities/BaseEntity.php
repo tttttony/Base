@@ -1,7 +1,9 @@
 <?php namespace Modules\Base\Entities;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Modules\Base\Entities\Traits\Filterable;
+use Modules\Projects\Entities\Project;
 
 class BaseEntity extends Model
 {
@@ -22,9 +24,9 @@ class BaseEntity extends Model
         ) {
             //$this->relationships[] = 'properties';
             //$this->validFilterableFields[] = 'properties.code';
-            if(env('SITE_CODE')) {
+            if(config('properties.site_code')) {
                 $query->whereHas('properties', function ($q) {
-                    $q->where('code', env('SITE_CODE'));
+                    $q->where('code', config('properties.site_code'));
                 });
             }
         }

@@ -15,8 +15,8 @@ trait Sluggable
     }
 
     public function getSlug() {
-        if(env('SITE_CODE')) {
-            return $this->getSlugByProperty(env('SITE_CODE'));
+        if(config('properties.site_code')) {
+            return $this->getSlugByProperty(config('properties.site_code'));
         }
 
         $properties = $this->properties->pluck('code')->all();
@@ -28,11 +28,11 @@ trait Sluggable
     }
 
     public function lookUpBySlug($slug) {
-        if(env('SITE_CODE')) {
+        if(config('properties.site_code')) {
             $search = [
                 ['slug', $slug],
                 ['sluggable_type', $this->getMorphClass()],
-                ['property_code', env('SITE_CODE')]
+                ['property_code', config('properties.site_code')]
             ];
         }
         else {

@@ -56,8 +56,8 @@ abstract class EloquentBaseRepository implements BaseRepository
         ) {
             $this->relationships[] = 'properties';
             $this->validFilterableFields[] = 'properties.code';
-            if(env('SITE_CODE')) {
-                $this->addFilter('properties.code', env('SITE_CODE'));
+            if(config('properties.site_code')) {
+                $this->addFilter('properties.code', config('properties.site_code'));
             }
         }
     }
@@ -104,9 +104,9 @@ abstract class EloquentBaseRepository implements BaseRepository
             }
 
             foreach ($relationships as $relationship) {
-                if (env('SITE_CODE') != null and $relationship == 'properties') {
-                    if($new and env('SITE_CODE')) {
-                        $this->attachObject('properties', $item, [env('SITE_CODE')]);
+                if (config('properties.site_code') != null and $relationship == 'properties') {
+                    if($new and config('properties.site_code')) {
+                        $this->attachObject('properties', $item, [config('properties.site_code')]);
                     }
 
                     continue;
@@ -233,6 +233,12 @@ abstract class EloquentBaseRepository implements BaseRepository
     public function paginate($perPage = 100)
     {
         return $this->filterAndSort($this->query())->paginate($perPage);
+    }
+
+    public function load($fields)
+    {
+        $this->query()->load($fields);
+        return $this;
     }
 
     /**

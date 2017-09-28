@@ -24,7 +24,7 @@ class Controller extends BaseController
             $ssd = $request->input('sites_data');
             foreach ($ssd as $site_code => $data) {
                 if(
-                    $site_code == env('SITE_CODE')
+                    $site_code == config('properties.site_code')
                     or (!empty($request->input('properties')) and in_array($site_code, $request->input('properties')))
                 ) {
                     $repo_class = 'Sites\\' . strtoupper($site_code) . '\Repositories\Eloquent\\' . class_basename($this->repository);
