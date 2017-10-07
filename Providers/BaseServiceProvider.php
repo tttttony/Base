@@ -115,7 +115,7 @@ class BaseServiceProvider extends ServiceProvider {
         });
 
         Blade::directive('endwrap', function(){
-            return "<?php \$output = ob_get_contents(); ob_end_clean(); echo preg_replace(\"/<(label|input|select|textarea)(.*?)(name|for)=\\\"(.*?)?(\\[])?\\\"/\", \"<$1$2$3=\\\"\".\$wrapper.\"[$4]$5\\\"\", \$output); ?>";
+            return "<?php \$output = ob_get_contents(); ob_end_clean(); echo preg_replace(\"/<(label|input|select|textarea)(.*?)(name|for)=\\\"(.*?)?(\\[(.*)])?\\\"/\", \"<$1$2$3=\\\"\".\$wrapper.\"[$4]$5\\\"\", \$output); ?>";
         });
 
         Blade::directive('placeholderfix', function($placeholder){
