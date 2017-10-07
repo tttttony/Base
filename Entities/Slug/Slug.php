@@ -6,7 +6,6 @@ use Webpatser\Uuid\Uuid;
 
 class Slug extends BaseEntity
 {
-    use Propertiable;
     protected $table = 'sluggables';
     protected $fillable = [
         'property_code',

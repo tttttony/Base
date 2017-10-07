@@ -45,14 +45,18 @@ trait Filterable
                 if (property_exists($this, 'relationships') and in_array($relationship, $this->relationships)) {
                     $query->with($relationship)->whereHas($relationship, function ($q) use ($key, $comparision) {
                         $table = $q->getModel()->getTable();
-                        switch(strtolower($comparision['operator'])) {
+
+                        switch(strtolower($comparision['value'])) {
                             case null:
                             case 'null':
-                                $q->whereNull($table . '.' . $key);
+                                $q->whereNull($key);
                                 break;
                             case '!null':
-                                $q->whereNull($table . '.' . $key);
+                                $q->whereNotNull($key);
                                 break;
+                        }
+
+                        switch(strtolower($comparision['operator'])) {
                             case 'in':
                                 $q->whereIn($table . '.' . $key, $comparision['value']);
                                 break;
@@ -68,14 +72,17 @@ trait Filterable
                 continue;
             }
 
-            switch(strtolower($comparision['operator'])) {
+            switch(strtolower($comparision['value'])) {
                 case null:
                 case 'null':
                     $query->whereNull($key);
                     break;
                 case '!null':
-                    $query->whereNull($key);
+                    $query->whereNotNull($key);
                     break;
+            }
+
+            switch(strtolower($comparision['operator'])) {
                 case 'in':
                     $query->whereIn($key, $comparision['value']);
                     break;

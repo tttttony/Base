@@ -6,8 +6,7 @@ use Modules\Organization\Entities\Traits\Propertiable;
 
 class UuidSlug extends BaseEntity
 {
-    use Propertiable,
-        UuidModelTrait;
+    use UuidModelTrait;
     protected $table = 'sluggables_uuid';
     protected $fillable = [
         'property_code',

@@ -3,7 +3,6 @@
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Modules\Base\Entities\Traits\Filterable;
-use Modules\Projects\Entities\Project;
 
 class BaseEntity extends Model
 {
@@ -29,6 +28,10 @@ class BaseEntity extends Model
                     $q->where('code', config('properties.site_code'));
                 });
             }
+        }
+
+        if(in_array('active', $this->fillable)) {
+            $query->where('active', 1);
         }
 
         return $query;

@@ -60,6 +60,10 @@ abstract class EloquentBaseRepository implements BaseRepository
                 $this->addFilter('properties.code', config('properties.site_code'));
             }
         }
+//
+//        if(array_key_exists('active', $this->validFilterableFields)) {
+//            $this->addFilter('active', 1);
+//        }
     }
 
     public function query()
@@ -72,6 +76,10 @@ abstract class EloquentBaseRepository implements BaseRepository
 
     public function getModelName() {
         return class_basename($this->model);
+    }
+
+    public function getModelClass() {
+        return get_class($this->model);
     }
 
     public function sort($by, $order = 'asc')
