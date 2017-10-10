@@ -31,8 +31,8 @@ trait Site_Addition
         return (
             $key != 'siteSpecificData'
             and (
-                $must_be_fillable
-				and $this->dataToUse()->isFillable($key)
+                ($must_be_fillable and $this->dataToUse()->isFillable($key))
+                or !$must_be_fillable
 			)
 			and $key !== 'id'
         );
