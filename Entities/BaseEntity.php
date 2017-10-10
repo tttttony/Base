@@ -30,10 +30,6 @@ class BaseEntity extends Model
             }
         }
 
-        if(in_array('active', $this->fillable)) {
-            $query->where('active', 1);
-        }
-
         return $query;
     }
 

@@ -46,14 +46,16 @@ trait Filterable
                     $query->with($relationship)->whereHas($relationship, function ($q) use ($key, $comparision) {
                         $table = $q->getModel()->getTable();
 
-                        switch(strtolower($comparision['value'])) {
-                            case null:
-                            case 'null':
-                                $q->whereNull($key);
-                                break;
-                            case '!null':
-                                $q->whereNotNull($key);
-                                break;
+                        if(!empty($comparision['value'])) {
+                            switch (strtolower($comparision['value'])) {
+                                case null:
+                                case 'null':
+                                    $q->whereNull($key);
+                                    break;
+                                case '!null':
+                                    $q->whereNotNull($key);
+                                    break;
+                            }
                         }
 
                         switch(strtolower($comparision['operator'])) {
@@ -72,14 +74,16 @@ trait Filterable
                 continue;
             }
 
-            switch(strtolower($comparision['value'])) {
-                case null:
-                case 'null':
-                    $query->whereNull($key);
-                    break;
-                case '!null':
-                    $query->whereNotNull($key);
-                    break;
+            if(!empty($comparision['value'])) {
+                switch (strtolower($comparision['value'])) {
+                    case null:
+                    case 'null':
+                        $query->whereNull($key);
+                        break;
+                    case '!null':
+                        $query->whereNotNull($key);
+                        break;
+                }
             }
 
             switch(strtolower($comparision['operator'])) {
