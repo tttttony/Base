@@ -48,13 +48,21 @@
                 <div class="float-right">
                 @foreach ($actions as $action)
                     @permission($action['permission'])
-                        <a href="{{ URL::route($action['route'], $item->getKey()) }}" {!! app('html')->attributes($action['attributes']) !!}>
-                            @if(isset($action['icon']))
-                                <i class="fa fa-{{ $action['icon'] }}" data-toggle="tooltip" title="{{ $action['title'] }}"></i>
-                            @else
-                                {{ $action['title'] }}
+                        <span class="action">
+                            @if(isset($action['template']))
+                                @includeIf($action['template'])
                             @endif
-                        </a>
+
+                            @if(isset($action['route']))
+                                <a href="{{ URL::route($action['route'], $item->getKey()) }}" {!! app('html')->attributes($action['attributes']) !!}>
+                                    @if(isset($action['icon']))
+                                        <i class="fa fa-{{ $action['icon'] }}" data-toggle="tooltip" title="{{ $action['title'] }}"></i>
+                                    @else
+                                        {{ $action['title'] }}
+                                    @endif
+                                </a>
+                            @endif
+                        </span>
                     @endauth
                 @endforeach
                 </div>
