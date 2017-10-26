@@ -52,9 +52,21 @@ trait Site_Addition
     public function __get($key)
     {
         if($this->shouldUse($key))
-            return (empty($this->dataToUse()->$key) && !empty(parent::__get($key)))? parent::__get($key): $this->dataToUse()->$key;
+            return (empty($this->dataToUse()->$key)
+                && !empty(parent::__get($key)))
+                ? parent::__get($key): $this->dataToUse()->$key;
 
         return parent::__get($key);
+    }
+
+    public function getAttribute($key)
+    {
+        if($this->shouldUse($key))
+            return (empty($this->dataToUse()->$key)
+                && !empty(parent::getAttribute($key)))
+                ? parent::getAttribute($key): $this->dataToUse()->$key;
+
+        return parent::getAttribute($key);
     }
 
     public function __set($key, $value)
@@ -68,7 +80,8 @@ trait Site_Addition
     public function __isset($key)
     {
         if($this->shouldUse($key))
-            return $this->dataToUse()->__isset($key);
+            return (empty($this->dataToUse()->$key) && !empty(parent::__isset($key))) ? parent::__isset($key) : $this->dataToUse()->__isset($key);
+            //return $this->dataToUse()->__isset($key);
 
         return parent::__isset($key);
     }
@@ -91,7 +104,7 @@ trait Site_Addition
 
     public function setAttribute($key, $value)
     {
-        if($this->shouldUse($key))
+        if($this->shouldUse($key, true))
             return $this->dataToUse()->setAttribute($key, $value);
 
         return parent::setAttribute($key, $value);

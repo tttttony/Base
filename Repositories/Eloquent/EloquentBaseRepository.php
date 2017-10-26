@@ -249,6 +249,12 @@ abstract class EloquentBaseRepository implements BaseRepository
         return $this;
     }
 
+    public function with($fields)
+    {
+        $this->query()->with($fields);
+        return $this;
+    }
+
     /**
      * @param  mixed  $data
      * @return object
