@@ -265,7 +265,14 @@ abstract class EloquentBaseRepository implements BaseRepository
     {
         // $data['active'] = isset($data['active']) ? 1 : 0;
         $item = $this->model->create($data);
-        $this->syncRelationships($item, (isset($data))?$data:[], [],true);
+
+        if(!property_exists($this, 'filesService')
+            or !in_array(FileServiceContract::class, class_implements($this->filesService))) {
+            $this->syncRelationships($item, (isset($data)) ? $data : []);
+        }
+        else {
+            $this->handleFiles($data)->syncRelationships($item, (isset($data)) ? $data : [], [], true);
+        }
 
         /*
 
@@ -288,7 +295,13 @@ abstract class EloquentBaseRepository implements BaseRepository
     {
         // $data['active'] = isset($data['active']) ? 1 : 0;
         if($item = $this->model->find($id)) {
-            $this->handleFiles($data)->syncRelationships($item, (isset($data))?$data:[]);
+            if(!property_exists($this, 'filesService')
+                or !in_array(FileServiceContract::class, class_implements($this->filesService))) {
+                $this->syncRelationships($item, (isset($data)) ? $data : []);
+            }
+            else {
+                $this->handleFiles($data)->syncRelationships($item, (isset($data)) ? $data : []);
+            }
             $item->update($data);
             return $item;
         }
