@@ -1,10 +1,12 @@
 <?php namespace Modules\Base\Repositories\Eloquent;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\App;
 use Modules\Base\Entities\BaseEntity;
 use Modules\Base\Entities\Traits\Filterable;
 use Modules\Base\Exceptions\GeneralException;
+use Modules\Base\Services\FileServiceContract;
 use Modules\Base\Http\Requests\Request;
 use Modules\Base\Repositories\BaseRepository;
 /**
@@ -286,7 +288,7 @@ abstract class EloquentBaseRepository implements BaseRepository
     {
         // $data['active'] = isset($data['active']) ? 1 : 0;
         if($item = $this->model->find($id)) {
-            $this->syncRelationships($item, (isset($data))?$data:[]);
+            $this->handleFiles($data)->syncRelationships($item, (isset($data))?$data:[]);
             $item->update($data);
             return $item;
         }
@@ -319,5 +321,41 @@ abstract class EloquentBaseRepository implements BaseRepository
     public function clearCache()
     {
         return true;
+    }
+
+    public function handleFiles(&$data){
+        // make sure we have a defined file service
+        if(!property_exists($this, 'filesService')
+            or !in_array(FileServiceContract::class, class_implements($this->filesService))) {
+            // fileService is declared by the extending repository
+            throw new GeneralException('file service must be set');
+        }
+
+        $keys = array_merge(
+            (!empty($data['files-new']))? array_keys($data['files-new']): [],
+            (!empty($data['files-keep']))? array_keys($data['files-keep']): []
+        );
+
+        if (!empty($keys)) {
+            foreach ($keys as $key) {
+                $data[$key] = (!empty($data['files-keep'])) ? $data['files-keep'] : [];
+                if (!empty($data['files-new'][$key])) {
+                    $ids = $this->filesService->createBatch($data['files'][$key], $data['files-new'][$key]);
+                    foreach ($ids as $new_id) {
+                        $data[$key][] = $new_id;
+                    }
+                }
+
+                if (!empty($data['files-remove'][$key]) && !empty($data[$key])) {
+                    foreach ($data[$key] as $k => $file) {
+                        if (in_array($file, $data['files-remove'][$key])) {
+                            unset($data[$key][$k]);
+                        }
+                    }
+                }
+            }
+        }
+
+        return $this;
     }
 }
