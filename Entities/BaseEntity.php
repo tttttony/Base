@@ -21,8 +21,6 @@ class BaseEntity extends Model
             method_exists($this, 'properties')
             and $this->properties() instanceof Relation
         ) {
-            //$this->relationships[] = 'properties';
-            //$this->validFilterableFields[] = 'properties.code';
             if(config('properties.site_code')) {
                 $query->whereHas('properties', function ($q) {
                     $q->where('code', config('properties.site_code'));

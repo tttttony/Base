@@ -2,12 +2,10 @@
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
-use Illuminate\Support\Facades\App;
 use Modules\Base\Entities\BaseEntity;
 use Modules\Base\Entities\Traits\Filterable;
 use Modules\Base\Exceptions\GeneralException;
 use Modules\Base\Services\FileServiceContract;
-use Modules\Base\Http\Requests\Request;
 use Modules\Base\Repositories\BaseRepository;
 /**
  * Class EloquentBaseRepository
@@ -118,12 +116,14 @@ abstract class EloquentBaseRepository implements BaseRepository
                     if($new and config('properties.site_code')) {
                         $this->attachObject('properties', $item, [config('properties.site_code')]);
                     }
-
                     continue;
                 }
 
                 if (isset($data[$relationship]) || (isset($data['_method']) and $data['_method'] == 'PUT')) {
-                    $relationship_data = (isset($data[$relationship]) and is_array($data[$relationship])) ? $data[$relationship] : [];
+                    $relationship_data = [];
+                    if(isset($data[$relationship])) {
+                        $relationship_data =  (is_array($data[$relationship])) ? $data[$relationship] : [$data[$relationship]];
+                    }
                     $this->attachObject($relationship, $item, $relationship_data);
                 }
             }
@@ -147,7 +147,15 @@ abstract class EloquentBaseRepository implements BaseRepository
             $this->{$method}($item, $object_ids);
         } else {
             if (method_exists($item->{$object}(), 'sync')) {
-                $item->{$object}()->sync($object_ids, true);
+                $new_ids = $object_ids;
+
+                if (!empty($object_ids) and property_exists($this, 'attachWithAttributeInPivot') and in_array($object, $this->attachWithAttributeInPivot)) {
+                    foreach ($object_ids as $key => $id) {
+                        $new_ids[$id] = ['attribute_name' => $object];
+                    }
+                }
+
+                $item->{$object}()->sync($new_ids, true);
             } else {
                 $item->sync($object, $object_ids);
             }
@@ -268,7 +276,7 @@ abstract class EloquentBaseRepository implements BaseRepository
 
         if(!property_exists($this, 'filesService')
             or !in_array(FileServiceContract::class, class_implements($this->filesService))) {
-            $this->syncRelationships($item, (isset($data)) ? $data : []);
+            $this->syncRelationships($item, (isset($data)) ? $data : [], [], true);
         }
         else {
             $this->handleFiles($data)->syncRelationships($item, (isset($data)) ? $data : [], [], true);
@@ -280,7 +288,7 @@ abstract class EloquentBaseRepository implements BaseRepository
             Maybe touching the parent's timestamps on property relationship update?
 
         */
-        $item = $this->find($item->id);
+        //$item = $this->find($item->id);
         $item->save();
 
         return $item;
@@ -336,11 +344,9 @@ abstract class EloquentBaseRepository implements BaseRepository
         return true;
     }
 
-    public function handleFiles(&$data){
-        // make sure we have a defined file service
+    public function handleFiles(&$data) {
         if(!property_exists($this, 'filesService')
             or !in_array(FileServiceContract::class, class_implements($this->filesService))) {
-            // fileService is declared by the extending repository
             throw new GeneralException('file service must be set');
         }
 
@@ -351,11 +357,26 @@ abstract class EloquentBaseRepository implements BaseRepository
 
         if (!empty($keys)) {
             foreach ($keys as $key) {
-                $data[$key] = (!empty($data['files-keep'])) ? $data['files-keep'] : [];
-                if (!empty($data['files-new'][$key])) {
-                    $ids = $this->filesService->createBatch($data['files'][$key], $data['files-new'][$key]);
-                    foreach ($ids as $new_id) {
-                        $data[$key][] = $new_id;
+                $data[$key] = [];
+                if((!empty($data['files-keep']) and !empty($data['files-keep'][$key]))) {
+                    if(isset($data['files-keep'][$key]['id'])) {
+                        $data[$key] = $data['files-keep'][$key]['id'];
+                    }
+                    else {
+                        $data[$key] = array_column($data['files-keep'][$key], 'id');
+                    }
+                }
+
+                if (!empty($data['files'][$key])) {
+                    if(is_array($data['files'][$key])) {
+                        $ids = $this->filesService->createBatch($data['files'][$key], $data['files-new'][$key]);
+                        foreach ($ids as $new_id) {
+                            $data[$key][] = $new_id;
+                        }
+                    }
+                    else {
+                        $image_object = $this->filesService->create($data['files'][$key], $data['files-new'][$key]);
+                        $data[$key] = $image_object->id;
                     }
                 }
 
