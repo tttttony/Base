@@ -172,7 +172,7 @@ abstract class EloquentBaseRepository implements BaseRepository
     {
         //first check the id
         if (
-            ( is_numeric($id) or ! $this->model->getIncrementing() )
+            ( is_numeric($id) or ! $this->model->getIncrementing() or is_array($id))
             and $item = $this->filterAndSort($this->query())->find($id) /* intentional assignment */
         ) {
             return $item;
@@ -317,7 +317,7 @@ abstract class EloquentBaseRepository implements BaseRepository
     }
 
     /**
-     * @param  Model $model
+     * @param  int $id
      * @return bool
      */
     public function destroy($id)
