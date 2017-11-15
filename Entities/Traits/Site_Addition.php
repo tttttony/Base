@@ -15,6 +15,10 @@ trait Site_Addition
         $this->save();
     }
 
+    public function ssd() {
+        return $this->siteSpecificData();
+    }
+
     public function siteSpecificData()
     {
         return $this->hasOne($this->site_class);

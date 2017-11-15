@@ -40,10 +40,17 @@ trait Filterable
     {
         foreach($this->filters as $key => $comparisons) {
             foreach ($comparisons as $comparison) {
+                if (method_exists($query->getModel(), 'shouldUse')
+                    and !str_contains($key, '.')
+                    and $query->getModel()->shouldUse($key, true)) {
+                    $key = 'ssd.'.$key;
+                }
+
                 if (str_contains($key, '.')) {
                     list($relationship, $key) = explode('.', $key);
 
-                    if (property_exists($this, 'relationships') and in_array($relationship, $this->relationships)) {
+                    if ($relationship == 'ssd'
+                        or (property_exists($this, 'relationships') and in_array($relationship, $this->relationships))) {
                         $query->with($relationship)->whereHas($relationship, function ($q) use ($key, $comparison) {
                             $table = $q->getModel()->getTable();
 
