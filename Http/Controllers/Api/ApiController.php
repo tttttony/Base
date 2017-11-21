@@ -9,37 +9,45 @@ class ApiController extends Controller
     protected $response;
     protected $sortBy;
     protected $sortOrder;
+    protected $count;
     protected $filters = [];
 
     public function __construct(Request $request, Response $response)
     {
         $this->response = $response;
 
-        if($request->has('filter')) {
+        if ($request->has('filter')) {
             $filters = $request->input('filter');
 
-            foreach($filters as $filter) {
+            foreach ($filters as $filter) {
                 $new_filter = explode(':', $filter);
-                if(count($new_filter) == 3 and $new_filter[1] == 'in' or $new_filter[1] == '!in') {
+                if (count($new_filter) == 3 and $new_filter[1] == 'in' or $new_filter[1] == '!in') {
                     $new_filter[2] = explode(',', $new_filter[2]);
                 }
                 $this->filters[] = $new_filter;
             }
         }
 
-        if($request->has('sort')) {
+        if ($request->has('sort')) {
             $sort = explode(':', $request->input('sort'));
-            $this->sortBy = (!empty($sort[0])) ? $sort[0]: null;
-            $this->sortOrder = (!empty($sort[1])) ? $sort[1]: null;
+            $this->sortBy = (!empty($sort[0])) ? $sort[0] : null;
+            $this->sortOrder = (!empty($sort[1])) ? $sort[1] : null;
         }
-/*
- * //TODO: this is only for retailer, admins can do anything to any account.
-        if(!empty($request->all())) {
-            if (!access()->user()->hasAccount($request->get('account_number'))) {
-                return $this->response->errorUnauthorized('Unauthorized');
-            }
+
+
+        if ($request->has('count')) {
+            $this->count = explode(',', $request->input('count'));
         }
-*/
+
+
+        /*
+         * //TODO: this is only for retailer, admins can do anything to any account.
+                if(!empty($request->all())) {
+                    if (!access()->user()->hasAccount($request->get('account_number'))) {
+                        return $this->response->errorUnauthorized('Unauthorized');
+                    }
+                }
+        */
     }
 
     protected function prepare($repo) {
