@@ -9,7 +9,7 @@ class ApiController extends Controller
     protected $response;
     protected $sortBy;
     protected $sortOrder;
-    protected $count;
+    protected $count = [];
     protected $filters = [];
 
     public function __construct(Request $request, Response $response)
@@ -34,11 +34,9 @@ class ApiController extends Controller
             $this->sortOrder = (!empty($sort[1])) ? $sort[1] : null;
         }
 
-
         if ($request->has('count')) {
             $this->count = explode(',', $request->input('count'));
         }
-
 
         /*
          * //TODO: this is only for retailer, admins can do anything to any account.
@@ -51,6 +49,7 @@ class ApiController extends Controller
     }
 
     protected function prepare($repo) {
+        $repo->withCount($this->count);
         $repo->sort($this->sortBy, $this->sortOrder);
 
         foreach($this->filters as $filter) {

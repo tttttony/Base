@@ -68,10 +68,11 @@ abstract class EloquentBaseRepository implements BaseRepository
 
     public function query()
     {
-        if ($this->query instanceof Model) {
+        if (isset($this->query)) {
             return $this->query;
         }
-        return $this->model->query();
+        $this->query = $this->model->query();
+        return $this->query;
     }
 
     public function getModelName() {
@@ -255,13 +256,19 @@ abstract class EloquentBaseRepository implements BaseRepository
 
     public function load($fields)
     {
-        $this->query()->load($fields);
+        $this->query = $this->query()->load($fields);
         return $this;
     }
 
     public function with($fields)
     {
-        $this->query()->with($fields);
+        $this->query = $this->query()->with($fields);
+        return $this;
+    }
+
+    public function withCount($fields)
+    {
+        $this->query = $this->query()->withCount($fields);
         return $this;
     }
 
