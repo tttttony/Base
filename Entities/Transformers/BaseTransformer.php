@@ -4,18 +4,25 @@ use League\Fractal\TransformerAbstract;
 
 class BaseTransformer extends TransformerAbstract
 {
-    protected $merge_data;
+    protected $merge_data = [];
 
     protected function pre_transform(&$array, $item) {
         $this->merge_data = [];
         $counts = [];
-        if(empty($identifier)) {
+        $identifier = $this->getCurrentScope()->getIdentifier();
+
+        if(!empty($identifier)) {
+            $counts = $this->getCurrentScope()->getManager()->getIncludeParams($identifier)->get('count');
+        }
+        else {
             if(app('Illuminate\Http\Request')->has('count'))
                 $counts = explode(',', app('Illuminate\Http\Request')->input('count'));
         }
 
-        foreach($counts as $count) {
-            $this->merge_data[$count.'_count'] = $item->{$count.'_count'};
+        if(!empty($counts)) {
+            foreach ($counts as $count) {
+                $this->merge_data[$count . '_count'] = $item->{$count . '_count'};
+            }
         }
     }
 
@@ -34,7 +41,8 @@ class BaseTransformer extends TransformerAbstract
         if(!empty($fields))
             $array = $this->reduceKeys($array, $fields);
 
-        $array = array_merge($array, $this->merge_data);
+        $merge_in = $this->merge_data;
+        $array = array_merge($array, $merge_in);
     }
 
     protected function clearNullValues(&$array) {

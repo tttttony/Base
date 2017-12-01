@@ -114,7 +114,7 @@ trait Filterable
                     continue;
                 }
 
-                if (!empty($comparison['value'])) {
+                if (!is_array($comparison['value']) and !empty($comparison['value'])) {
                     switch (strtolower($comparison['value'])) {
                         case null:
                         case 'null':

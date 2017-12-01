@@ -26,6 +26,8 @@ abstract class EloquentBaseRepository implements BaseRepository
     protected $sortBy = 'id';
     protected $sortOrder = "desc";
 
+    protected $activeOnly = true;
+
     /**
      * @param Model $model
      */
