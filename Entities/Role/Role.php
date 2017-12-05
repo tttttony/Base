@@ -2,6 +2,7 @@
 
 namespace Modules\Base\Entities\Role;
 
+use Laracasts\Presenter\PresentableTrait;
 use Modules\Base\Entities\BaseEntity;
 use Modules\Base\Entities\Role\Traits\RoleAccess;
 use Modules\Base\Entities\Role\Traits\Attribute\RoleAttribute;
@@ -13,7 +14,9 @@ use Modules\Base\Entities\Role\Traits\Relationship\RoleRelationship;
  */
 class Role extends BaseEntity
 {
-    use RoleAccess, RoleAttribute, RoleRelationship;
+    use RoleAccess, RoleAttribute, RoleRelationship, PresentableTrait;
+
+    protected $presenter = 'Modules\Users\Entities\Presenters\UserPresenter';
 
     /**
      * The database table used by the model.

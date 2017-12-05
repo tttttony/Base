@@ -4,7 +4,15 @@ use League\Fractal\TransformerAbstract;
 
 class BaseTransformer extends TransformerAbstract
 {
+
+    protected $params = [];
+
     protected $merge_data = [];
+
+    public function __construct($params = [])
+    {
+        $this->params = $params;
+    }
 
     protected function pre_transform(&$array, $item) {
         $this->merge_data = [];
