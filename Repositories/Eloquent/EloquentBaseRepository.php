@@ -68,9 +68,9 @@ abstract class EloquentBaseRepository implements BaseRepository
 //        }
     }
 
-    public function query()
+    public function query($reset = true)
     {
-        if (isset($this->query)) {
+        if (isset($this->query) and !$reset) {
             return $this->query;
         }
         $this->query = $this->model->query();
