@@ -1,12 +1,18 @@
 <?php namespace Modules\Base\Entities\Traits;
 
+use function Aws\clear_compiled_json;
+
 trait Site_Addition
 {
     protected $data;
     protected $site_class;
+    protected $foreignKey = null;
+    protected $site_specific_relationships = [];
 
     public function onSiteCreate() {
-        $this->site_class = '\Sites\\'.$this->site_code.'\Entities\\'.ucfirst(strtolower($this->site_code)).class_basename($this);
+        if(!isset($this->site_class)) {
+            $this->site_class = '\Sites\\' . $this->site_code . '\Entities\\' . ucfirst(strtolower($this->site_code)) . class_basename($this);
+        }
         $this->with[] = 'siteSpecificData';
     }
 
@@ -21,7 +27,7 @@ trait Site_Addition
 
     public function siteSpecificData()
     {
-        return $this->hasOne($this->site_class);
+        return $this->hasOne($this->site_class, $this->foreignKey);
     }
 
     public function checkData()
@@ -30,8 +36,13 @@ trait Site_Addition
             $this->data = new $this->site_class;
     }
 
+    public function shouldUseRelationship($relationship) {
+        return (in_array($relationship, $this->site_specific_relationships));
+    }
+
     public function shouldUse($key, $must_be_fillable = false)
     {
+        /* TODO: return true for ssd relationships like segments */
         return (
             $key != 'siteSpecificData'
             and (

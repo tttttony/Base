@@ -40,101 +40,96 @@ trait Filterable
     {
         foreach($this->filters as $key => $comparisons) {
             foreach ($comparisons as $comparison) {
+                if (str_contains($key, '.')) {
+                    $relationships = explode('.', $key);
+                    $key = array_pop($relationships);
+
+                    if (method_exists($query->getModel(), 'shouldUseRelationship')
+                        and $query->getModel()->shouldUseRelationship($relationships[0])) {
+                        array_unshift($relationships, 'ssd');
+                    }
+
+                    $query->with(implode('.', $relationships));
+
+                    if(in_array(strtolower($comparison['operator']), ['<>', '!in', '!null'])) {
+                        //reverse negatives
+                        $comparison['operator'] = str_replace(
+                            ['<>', '!in', '!null'],
+                            ['=', 'in', 'null'],
+                            $comparison['operator']);
+                        $comparison['reverse'] = true;
+                    }
+
+                    //TODO: Group relationships to lower the amount of exists in query
+                    $query = $this->applyRelationships($query, $relationships, $key, $comparison);
+                    continue;
+                }
+
                 if (method_exists($query->getModel(), 'shouldUse')
                     and !str_contains($key, '.')
                     and $query->getModel()->shouldUse($key, true)) {
                     $key = 'ssd.'.$key;
                 }
 
-                if (str_contains($key, '.')) {
-                    list($relationship, $key) = explode('.', $key);
-
-                    //TODO: We should take everything that starts with ! and put it through a whereDoesntHave()
-                    if(in_array(strtolower($comparison['operator']), ['<>', '!in', '!null'])) {
-                        $query->with($relationship)->whereDoesntHave($relationship, function ($q) use ($key, $comparison) {
-                            $table = $q->getModel()->getTable();
-
-                            $comparison['operator'] = str_replace(
-                                ['<>', '!in', '!null'],
-                                ['=', 'in', 'null'],
-                                $comparison['operator']);
-
-                            if (!is_array($comparison['value']) and !empty($comparison['value'])) {
-                                switch (strtolower($comparison['value'])) {
-                                    case null:
-                                    case 'null':
-                                        $q->whereNull($key);
-                                        break;
-                                }
-                            }
-
-                            switch (strtolower($comparison['operator'])) {
-                                case'in':
-                                    $q->whereIn($table . '.' . $key, $comparison['value']);
-                                    break;
-                                default:
-                                    $q->where($table . '.' . $key, $comparison['operator'], $comparison['value']);
-                                    break;
-                            }
-                        });
-                    }
-                    else {
-                        $query->with($relationship)->whereHas($relationship, function ($q) use ($key, $comparison) {
-                            $table = $q->getModel()->getTable();
-
-                            if (!is_array($comparison['value']) and !empty($comparison['value'])) {
-                                switch (strtolower($comparison['value'])) {
-                                    case null:
-                                    case 'null':
-                                        $q->whereNull($key);
-                                        break;
-                                    case '!null':
-                                        $q->whereNotNull($key);
-                                        break;
-                                }
-                            }
-
-                            switch (strtolower($comparison['operator'])) {
-                                case 'in':
-                                    $q->whereIn($table . '.' . $key, $comparison['value']);
-                                    break;
-                                case'!in':
-                                    $q->whereNotIn($table . '.' . $key, $comparison['value']);
-                                    break;
-                                default:
-                                    $q->where($table . '.' . $key, $comparison['operator'], $comparison['value']);
-                                    break;
-                            }
-                        });
-                    }
-                    continue;
-                }
-
-                if (!is_array($comparison['value']) and !empty($comparison['value'])) {
-                    switch (strtolower($comparison['value'])) {
-                        case null:
-                        case 'null':
-                            $query->whereNull($key);
-                            break;
-                        case '!null':
-                            $query->whereNotNull($key);
-                            break;
-                    }
-                }
-
-                switch (strtolower($comparison['operator'])) {
-                    case 'in':
-                        $query->whereIn($key, $comparison['value']);
-                        break;
-                    case'!in':
-                        $query->whereNotIn($key, $comparison['value']);
-                        break;
-                    default:
-                        $query->where($key, $comparison['operator'], $comparison['value']);
-                        break;
-                }
+                $this->alterQuery($query, $key, $comparison);
             }
         }
         return $query;
+    }
+
+    public function alterQuery($query, $key, $comparison) {
+        $table = $query->getModel()->getTable();
+
+        if (!is_array($comparison['value']) and !empty($comparison['value'])) {
+            switch (strtolower($comparison['value'])) {
+                case null:
+                case 'null':
+                    $query->whereNull($key);
+                    break;
+                case '!null':
+                    $query->whereNotNull($key);
+                    break;
+            }
+        }
+
+        switch (strtolower($comparison['operator'])) {
+            case 'in':
+                $query->whereIn($table . '.' . $key, $comparison['value']);
+                break;
+            case'!in':
+                $query->whereNotIn($table . '.' . $key, $comparison['value']);
+                break;
+            default:
+                $query->where($table . '.' . $key, $comparison['operator'], $comparison['value']);
+                break;
+        }
+
+        return $query;
+    }
+
+    /**
+     * @param $query
+     * @param $relationships
+     * @return mixed
+     */
+    public function applyRelationships($query, $relationships, $key, $comparison) {
+        $relationship = array_shift($relationships);
+
+        if(empty($relationships)) {
+            if(isset($comparison['reverse']) and $comparison['reverse']){
+                return $query->whereDoesntHave($relationship, function ($q) use ($relationships, $key, $comparison) {
+                    $this->alterQuery($q, $key, $comparison);
+                });
+            }
+            //else
+            return $query->whereHas($relationship, function ($q) use ($relationships, $key, $comparison) {
+                $this->alterQuery($q, $key, $comparison);
+            });
+        }
+        else {
+            return $query->whereHas($relationship, function ($q) use ($relationships, $key, $comparison) {
+                return $this->applyRelationships($q, $relationships, $key, $comparison);
+            });
+        }
     }
 }
