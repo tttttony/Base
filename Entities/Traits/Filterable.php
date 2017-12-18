@@ -68,7 +68,9 @@ trait Filterable
                 if (method_exists($query->getModel(), 'shouldUse')
                     and !str_contains($key, '.')
                     and $query->getModel()->shouldUse($key, true)) {
-                    $key = 'ssd.'.$key;
+                    //$key = 'ssd.'.$key;
+                    $query = $this->applyRelationships($query, ['ssd'], $key, $comparison);
+                    continue;
                 }
 
                 $this->alterQuery($query, $key, $comparison);
