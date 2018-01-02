@@ -62,10 +62,6 @@ abstract class EloquentBaseRepository implements BaseRepository
                 $this->addFilter('properties.code', config('properties.site_code'));
             }
         }
-//
-//        if(array_key_exists('active', $this->validFilterableFields)) {
-//            $this->addFilter('active', 1);
-//        }
     }
 
     public function query($reset = true)
@@ -258,19 +254,19 @@ abstract class EloquentBaseRepository implements BaseRepository
 
     public function load($fields)
     {
-        $this->query = $this->query()->load($fields);
+        $this->model->load($fields);
         return $this;
     }
 
     public function with($fields)
     {
-        $this->query = $this->query()->with($fields);
+        $this->model->with($fields);
         return $this;
     }
 
     public function withCount($fields)
     {
-        $this->query = $this->query()->withCount($fields);
+        $this->model->withCount($fields);
         return $this;
     }
 

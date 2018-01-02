@@ -8,9 +8,13 @@ class BasePresenter extends Presenter
 {
     public function slug() {
         //TODO: check is trait sluggable is on entity before trying this.
-        if(
+        if(isset($this->entity->slug)) {
+            return $this->entity->slug;
+        }
+
+        if (
             method_exists($this->entity, 'getSlug')
-        and ($this->entity->getSlug() instanceof Slug or $this->entity->getSlug() instanceof UuidSlug)
+            and ($this->entity->getSlug() instanceof Slug or $this->entity->getSlug() instanceof UuidSlug)
         ) {
             return $this->entity->getSlug()->slug;
         }
