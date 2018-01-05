@@ -691,7 +691,7 @@ FILE;
 				],
 				'actions' => [
 					['route'=> 'admin.{$lower_module}.{$lower_object_plural}.edit', 'title' => 'Edit', 'icon' => 'pencil', 'attributes' => [ 'class' => 'btn btn-sm btn-primary' ], 'permission' => '{$lower_module}.{$lower_object_plural}.edit'],
-					['route'=> 'admin.{$lower_module}.{$lower_object_plural}.destroy', 'title' => 'Delete', 'icon' => 'trash-o', 'attributes' => ['data-method'=>"delete", 'class' => 'btn btn-sm btn-danger' ], 'permission' => '{$lower_module}.{$lower_object_plural}.delete']
+					['route'=> 'admin.{$lower_module}.{$lower_object_plural}.destroy', 'title' => 'Delete', 'icon' => 'trash-o', 'template' => 'actions.delete', 'attributes' => ['data-method'=>"delete", 'class' => 'btn btn-sm btn-danger delete-button' ], 'permission' => '{$lower_module}.{$lower_object_plural}.delete']
 				]
 			])
 		</div>

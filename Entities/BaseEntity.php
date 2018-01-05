@@ -8,9 +8,12 @@ class BaseEntity extends Model
 {
     use Filterable;
 
+    protected $activeOnly = true;
+
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
+
     }
 
     public function newQuery()
@@ -28,7 +31,15 @@ class BaseEntity extends Model
             }
         }
 
+        if(in_array('active', $this->fillable) and $this->activeOnly) {
+            $query->where('active', 1);
+        }
+
         return $query;
+    }
+
+    public function withInactive() {
+        $this->activeOnly = false;
     }
 
     /**
