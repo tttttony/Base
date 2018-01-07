@@ -74,7 +74,7 @@ abstract class EloquentBaseRepository implements BaseRepository
     }
 
     public function withInactive() {
-        //$this->activeOnly = false;
+        $this->activeOnly = false;
         $this->model->withInactive();
         return $this;
     }

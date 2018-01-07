@@ -16,6 +16,17 @@ class BaseEntity extends Model
 
     }
 
+    public function newInstance($attributes = [], $exists = false)
+    {
+        $model = parent::newInstance($attributes = [], $exists = false);
+
+        if(!$this->activeOnly) {
+            $model->withInactive();
+        }
+
+        return $model;
+    }
+
     public function newQuery()
     {
         $query = parent::newQuery();
@@ -36,6 +47,21 @@ class BaseEntity extends Model
         }
 
         return $query;
+    }
+
+    protected function newRelatedInstance($class)
+    {
+        $class_instance = new $class;
+
+        if(!$this->activeOnly) {
+            $class_instance->withInactive();
+        }
+
+        return tap($class_instance, function ($instance) {
+            if (! $instance->getConnectionName()) {
+                $instance->setConnection($this->connection);
+            }
+        });
     }
 
     public function withInactive() {
