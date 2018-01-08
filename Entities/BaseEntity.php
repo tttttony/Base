@@ -18,7 +18,7 @@ class BaseEntity extends Model
 
     public function newInstance($attributes = [], $exists = false)
     {
-        $model = parent::newInstance($attributes = [], $exists = false);
+        $model = parent::newInstance($attributes, $exists);
 
         if(!$this->activeOnly) {
             $model->withInactive();
