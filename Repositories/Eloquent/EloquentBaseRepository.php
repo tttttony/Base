@@ -28,6 +28,8 @@ abstract class EloquentBaseRepository implements BaseRepository
 
     protected $activeOnly = true;
 
+    protected $withCount = [];
+
     /**
      * @param Model $model
      */
@@ -98,12 +100,37 @@ abstract class EloquentBaseRepository implements BaseRepository
 
     protected function filterAndSort($query)
     {
-        return $this->applySortToQuery($this->applyFiltersToQuery($query));
+        return $this->applySortToQuery(
+            $this->applyFiltersToQuery(
+                $this->applyWithCount(
+                    $query
+                )
+            )
+        );
     }
 
     protected function applySortToQuery($query)
     {
         return $query->orderBy($this->sortBy, $this->sortOrder);
+    }
+
+    protected function applyWithCount($query)
+    {
+        if(!empty($this->withCount) and is_array($this->withCount)) {
+            if(isset($this->withCount['top'])) {
+                $query = $query->withCount($this->withCount['top']);
+            }
+            foreach ($this->withCount as $key => $count) {
+                if($key !== 'top') {
+                    $query = $query->with([
+                        $key => function ($q) use ($count) {
+                            $q->withCount($count);
+                        }
+                    ]);
+                }
+            }
+        }
+        return $query;
     }
 
     public function syncRelationships(&$item, $data, $relationships = [], $new = false)
@@ -272,7 +299,7 @@ abstract class EloquentBaseRepository implements BaseRepository
 
     public function withCount($fields)
     {
-        $this->model->withCount($fields);
+        $this->withCount = $fields;
         return $this;
     }
 
@@ -378,6 +405,7 @@ abstract class EloquentBaseRepository implements BaseRepository
                     }
                 }
 
+                $needs_to_remove = true;
                 if (!empty($data['files'][$key])) {
                     if(is_array($data['files'][$key])) {
                         $ids = $this->filesService->createBatch($data['files'][$key], $data['files-new'][$key]);
@@ -386,12 +414,13 @@ abstract class EloquentBaseRepository implements BaseRepository
                         }
                     }
                     else {
+                        $needs_to_remove = false;
                         $image_object = $this->filesService->create($data['files'][$key], $data['files-new'][$key]);
                         $data[$key] = $image_object->id;
                     }
                 }
 
-                if (!empty($data['files-remove'][$key]) && !empty($data[$key])) {
+                if (!empty($data['files-remove'][$key]) && !empty($data[$key]) and $needs_to_remove) {
                     foreach ($data[$key] as $k => $file) {
                         if (in_array($file, $data['files-remove'][$key])) {
                             unset($data[$key][$k]);

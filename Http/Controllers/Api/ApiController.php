@@ -35,7 +35,16 @@ class ApiController extends Controller
         }
 
         if ($request->has('count')) {
-            $this->count = explode(',', $request->input('count'));
+            $counts = explode(',', $request->input('count'));
+            foreach($counts as $count) {
+                if (!strpos($count, '.')) {
+                    $this->count['top'][] = $count;
+                }
+                else {
+                    list($key, $value) = explode('.', $count);
+                    $this->count[$key][] = $value;
+                }
+            }
         }
 
         /*

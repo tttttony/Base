@@ -19,17 +19,20 @@ class BaseTransformer extends TransformerAbstract
         $counts = [];
         $identifier = $this->getCurrentScope()->getIdentifier();
 
-        if(!empty($identifier)) {
-            $counts = $this->getCurrentScope()->getManager()->getIncludeParams($identifier)->get('count');
-        }
-        else {
-            if(app('Illuminate\Http\Request')->has('count'))
-                $counts = explode(',', app('Illuminate\Http\Request')->input('count'));
-        }
+        if(app('Illuminate\Http\Request')->has('count'))
+            $counts = explode(',', app('Illuminate\Http\Request')->input('count'));
 
         if(!empty($counts)) {
-            foreach ($counts as $count) {
-                $this->merge_data[$count . '_count'] = $item->{$count . '_count'};
+            foreach($counts as $count) {
+                if (!strpos($count, '.') and empty($identifier)) {
+                    $this->merge_data[$count . '_count'] = $item->{$count . '_count'};
+                }
+                elseif(strpos($count, '.') and !empty($identifier)) {
+                    list($key, $value) = explode('.', $count);
+                    if($identifier == $key) {
+                        $this->merge_data[$value . '_count'] = $item->{$value . '_count'};
+                    }
+                }
             }
         }
     }
