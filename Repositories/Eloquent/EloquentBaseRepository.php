@@ -28,6 +28,7 @@ abstract class EloquentBaseRepository implements BaseRepository
 
     protected $activeOnly = true;
 
+    protected $with = [];
     protected $withCount = [];
 
     /**
@@ -103,7 +104,9 @@ abstract class EloquentBaseRepository implements BaseRepository
         return $this->applySortToQuery(
             $this->applyFiltersToQuery(
                 $this->applyWithCount(
-                    $query
+                    $this->applyWith(
+                        $query
+                    )
                 )
             )
         );
@@ -112,6 +115,11 @@ abstract class EloquentBaseRepository implements BaseRepository
     protected function applySortToQuery($query)
     {
         return $query->orderBy($this->sortBy, $this->sortOrder);
+    }
+
+    protected function applyWith($query)
+    {
+        return $query->with($this->with);
     }
 
     protected function applyWithCount($query)
@@ -293,7 +301,7 @@ abstract class EloquentBaseRepository implements BaseRepository
 
     public function with($fields)
     {
-        $this->model->with($fields);
+        $this->with = $fields;
         return $this;
     }
 

@@ -114,8 +114,17 @@ trait Filterable
      * @param $relationships
      * @return mixed
      */
-    public function applyRelationships($query, $relationships, $key, $comparison) {
+    public function applyRelationships($query, $relationships, $key, $comparison, $current_model = null) {
         $relationship = array_shift($relationships);
+
+        if(is_null($current_model))
+            $current_model = $query->getModel();
+
+        $model = $current_model->$relationship()->getRelated()->getModel();
+
+        if (method_exists($model, 'shouldUse') and $model->shouldUse($key, true)) {
+            array_unshift($relationships, 'ssd');
+        }
 
         if(empty($relationships)) {
             if(isset($comparison['reverse']) and $comparison['reverse']){
@@ -129,8 +138,9 @@ trait Filterable
             });
         }
         else {
-            return $query->whereHas($relationship, function ($q) use ($relationships, $key, $comparison) {
-                return $this->applyRelationships($q, $relationships, $key, $comparison);
+            $current_model = $current_model->$relationship()->getRelated();
+            return $query->whereHas($relationship, function ($q) use ($relationships, $key, $comparison, $current_model) {
+                return $this->applyRelationships($q, $relationships, $key, $comparison, $current_model);
             });
         }
     }
