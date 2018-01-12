@@ -104,9 +104,9 @@ abstract class EloquentBaseRepository implements BaseRepository
         return $this->applySortToQuery(
             $this->applyFiltersToQuery(
                 $this->applyWithCount(
-                    $this->applyWith(
+//                    $this->applyWith(
                         $query
-                    )
+//                    )
                 )
             )
         );
