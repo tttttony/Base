@@ -73,9 +73,10 @@ trait Filterable
                     continue;
                 }
 
-                $this->alterQuery($query, $key, $comparison);
+                $query = $this->alterQuery($query, $key, $comparison);
             }
         }
+
         return $query;
     }
 
@@ -86,23 +87,23 @@ trait Filterable
             switch (strtolower($comparison['value'])) {
                 case null:
                 case 'null':
-                    $query->whereNull($key);
+                    $query = $query->whereNull($key);
                     break;
                 case '!null':
-                    $query->whereNotNull($key);
+                    $query = $query->whereNotNull($key);
                     break;
             }
         }
 
         switch (strtolower($comparison['operator'])) {
             case 'in':
-                $query->whereIn($table . '.' . $key, $comparison['value']);
+                $query = $query->whereIn($table . '.' . $key, $comparison['value']);
                 break;
             case'!in':
-                $query->whereNotIn($table . '.' . $key, $comparison['value']);
+                $query = $query->whereNotIn($table . '.' . $key, $comparison['value']);
                 break;
             default:
-                $query->where($table . '.' . $key, $comparison['operator'], $comparison['value']);
+                $query = $query->where($table . '.' . $key, $comparison['operator'], $comparison['value']);
                 break;
         }
 
