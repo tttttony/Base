@@ -3,6 +3,7 @@
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Modules\Base\Entities\Traits\Filterable;
+use Modules\Base\Services\Markdown;
 
 class BaseEntity extends Model
 {
@@ -66,6 +67,23 @@ class BaseEntity extends Model
 
     public function withInactive() {
         $this->activeOnly = false;
+    }
+
+    protected function castAttribute($key, $value)
+    {
+        if (is_null($value)) {
+            return $value;
+        }
+
+        switch ($this->getCastType($key)) {
+            case 'markdown':
+                return new Markdown($value); // markdown
+                break;
+            default:
+                break;
+        }
+
+        return parent::castAttribute($key, $value);
     }
 
     /**
