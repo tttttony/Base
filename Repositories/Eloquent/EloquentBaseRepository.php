@@ -65,6 +65,10 @@ abstract class EloquentBaseRepository implements BaseRepository
                 $this->addFilter('properties.code', config('properties.site_code'));
             }
         }
+
+        if(request()->has('include')) {
+            $this->with(explode(',', request()->input('include')));
+        }
     }
 
     public function query($reset = true)
@@ -78,7 +82,8 @@ abstract class EloquentBaseRepository implements BaseRepository
 
     public function withInactive() {
         $this->activeOnly = false;
-        $this->model->withInactive();
+        if(is_callable([$this->model, 'withInactive']))
+            $this->model->withInactive();
         return $this;
     }
 
@@ -102,13 +107,13 @@ abstract class EloquentBaseRepository implements BaseRepository
     protected function filterAndSort($query)
     {
         return $this->applySortToQuery(
-            $this->applyFiltersToQuery(
-                $this->applyWithCount(
-//                    $this->applyWith(
-                        $query
-//                    )
+                $this->applyWith(
+                    $this->applyWithCount(
+                        $this->applyFiltersToQuery(
+                            $query
+                        )
+                    )
                 )
-            )
         );
     }
 
@@ -130,14 +135,18 @@ abstract class EloquentBaseRepository implements BaseRepository
             }
             foreach ($this->withCount as $key => $count) {
                 if($key !== 'top') {
-                    $query = $query->with([
-                        $key => function ($q) use ($count) {
-                            $q->withCount($count);
-                        }
-                    ]);
+//                    $query = $query->with([
+//                        $key => function ($q) use ($count) {
+//                            $q->withCount($count);
+//                        }
+//                    ]);
+                    $this->with[$key] = function($q) use ($count) {
+                        $q->withCount($count);
+                    };
                 }
             }
         }
+
         return $query;
     }
 
@@ -301,8 +310,36 @@ abstract class EloquentBaseRepository implements BaseRepository
 
     public function with($fields)
     {
-        $this->with = $fields;
+        if(!is_array($fields)) {
+            $fields = [$fields];
+        }
+
+        foreach($fields as $field) {
+            if($this->isValidRelationship($field))
+                $this->with[] = $field;
+        }
+
         return $this;
+    }
+
+    protected function isValidRelationship($field) {
+        $steps = explode('.', $field);
+
+        try {
+            $test = $this->model;
+            $x = count($steps) - 1;
+            foreach ($steps as $k => $step) {
+                $test = $test->$step();
+                if ($k == $x)
+                    return ($test instanceof Relation);
+
+                $test = $test->getRelated();
+            }
+        }
+        catch(\Exception $e) {
+
+        }
+        return false;
     }
 
     public function withCount($fields)
