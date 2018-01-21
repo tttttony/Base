@@ -31,6 +31,15 @@ abstract class EloquentBaseRepository implements BaseRepository
     protected $with = [];
     protected $withCount = [];
 
+    public function getCacheKey() {
+        return get_class($this->model)
+            .'-'.$this->sortBy .'|'.$this->sortOrder
+            .'-'.(($this->activeOnly)?1:0)
+            .'-'.$this->compressFilters()
+            .'-'.implode('|', $this->with)
+            .'-'.implode('|', $this->withCount);
+    }
+
     /**
      * @param Model $model
      */
@@ -82,7 +91,7 @@ abstract class EloquentBaseRepository implements BaseRepository
 
     public function withInactive() {
         $this->activeOnly = false;
-        if(is_callable([$this->model, 'withInactive']))
+        if(method_exists($this->model, 'withInactive'))
             $this->model->withInactive();
         return $this;
     }

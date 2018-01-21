@@ -24,6 +24,15 @@ abstract class CacheBaseDecorator implements BaseRepository
     {
         $this->cacheTime = config('cache.time', 1);
     }
+    
+    public function getCacheKey(){
+        return $this->repository->getCacheKey();    
+    }
+
+    public function addFilter($key, $operator, $value = null) {
+        $this->repository->addFilter($key, $operator, $value);
+        return $this;
+    }
 
     /**
      * @return \Illuminate\Database\Eloquent\Collection
@@ -31,7 +40,7 @@ abstract class CacheBaseDecorator implements BaseRepository
     public function paginate($perPage = 100)
     {
         return Cache::tags($this->entityName, 'global')
-            ->remember("{$this->entityName}.paginate.{$perPage}", $this->cacheTime, function () use ($perPage) {
+            ->remember("{$this->getCacheKey()}.paginate.{$perPage}", $this->cacheTime, function () use ($perPage) {
                 return $this->repository->paginate($perPage);
             });
     }
@@ -44,7 +53,7 @@ abstract class CacheBaseDecorator implements BaseRepository
     public function getList($name_column = 'name', $id_column = 'id') {
 
         return Cache::tags($this->entityName, 'global')
-            ->remember("{$this->entityName}.getList.{$name_column}.{$id_column}", $this->cacheTime, function () use ($name_column, $id_column) {
+            ->remember("{$this->getCacheKey()}.getList.{$name_column}.{$id_column}", $this->cacheTime, function () use ($name_column, $id_column) {
                 return $this->repository->getList($name_column, $id_column);
             });
     }
@@ -57,7 +66,7 @@ abstract class CacheBaseDecorator implements BaseRepository
     {
         return Cache::
             tags($this->entityName, 'global')
-            ->remember("{$this->entityName}.find.{$id}", $this->cacheTime,
+            ->remember("{$this->getCacheKey()}.find.{$id}", $this->cacheTime,
                 function () use ($id) {
                     return $this->repository->find($id);
                 }
@@ -71,7 +80,7 @@ abstract class CacheBaseDecorator implements BaseRepository
     {
         return Cache::
             tags($this->entityName, 'global')
-            ->remember("{$this->entityName}.all", $this->cacheTime,
+            ->remember("{$this->getCacheKey()}.all", $this->cacheTime,
                 function () {
                     return $this->repository->all();
                 }
@@ -87,7 +96,7 @@ abstract class CacheBaseDecorator implements BaseRepository
     {
         return Cache::
             tags($this->entityName, 'global')
-            ->remember("{$this->entityName}.findBySlug.{$slug}", $this->cacheTime,
+            ->remember("{$this->getCacheKey()}.findBySlug.{$slug}", $this->cacheTime,
                 function () use ($slug) {
                     return $this->repository->findBySlug($slug);
                 }
@@ -142,7 +151,7 @@ abstract class CacheBaseDecorator implements BaseRepository
 
         return Cache::
             tags($this->entityName, 'global')
-            ->remember("{$this->entityName}.findByAttributes.{$tagIdentifier}", $this->cacheTime,
+            ->remember("{$this->getCacheKey()}.findByAttributes.{$tagIdentifier}", $this->cacheTime,
                 function () use ($attributes) {
                     return $this->repository->findByAttributes($attributes);
                 }
@@ -162,7 +171,7 @@ abstract class CacheBaseDecorator implements BaseRepository
 
         return Cache::
             tags($this->entityName, 'global')
-            ->remember("{$this->entityName}.findByAttributes.{$tagIdentifier}.{$orderBy}.{$sortOrder}", $this->cacheTime,
+            ->remember("{$this->getCacheKey()}.findByAttributes.{$tagIdentifier}.{$orderBy}.{$sortOrder}", $this->cacheTime,
                 function () use ($attributes, $orderBy, $sortOrder) {
                     return $this->repository->getByAttributes($attributes, $orderBy, $sortOrder);
                 }
@@ -180,7 +189,7 @@ abstract class CacheBaseDecorator implements BaseRepository
 
         return Cache::
             tags($this->entityName, 'global')
-            ->remember("{$this->entityName}.findByMany.{$tagIdentifier}", $this->cacheTime,
+            ->remember("{$this->getCacheKey()}.findByMany.{$tagIdentifier}", $this->cacheTime,
                 function () use ($ids) {
                     return $this->repository->findByMany($ids);
                 }
@@ -193,6 +202,117 @@ abstract class CacheBaseDecorator implements BaseRepository
      */
     public function clearCache()
     {
-        return Cache::tags($this->entityName)->flush();
+        return Cache::tags($this->gentityName)->flush();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function first()
+    {
+        return Cache::
+        tags($this->entityName, 'global')
+            ->remember("{$this->getCacheKey()}.first", $this->cacheTime,
+                function ()  {
+                    return $this->repository->first();
+                }
+            );
+    }
+
+    /**
+     * @return mixed
+     */
+    public function listAll()
+    {
+        return Cache::
+        tags($this->entityName, 'global')
+            ->remember("{$this->getCacheKey()}.listAll", $this->cacheTime,
+                function ()  {
+                    return $this->repository->listAll();
+                }
+            );
+    }
+    /**
+     * @param $item
+     * @param $data
+     * @param array $relationships
+     * @return mixed
+     */
+    public function syncRelationships(&$item, $data, $relationships = [])
+    {
+        $this->repository->syncRelationships($item, $data, $relationships);
+        return $this;
+    }
+
+    /**
+     * @param $object
+     * @param $item
+     * @param array $object_ids
+     * @return mixed
+     */
+    public function attachObject($object, &$item, $object_ids = [])
+    {
+        $this->repository->attachObject($object, $item, $object_ids);
+        return $this;
+    }
+
+    public function query($reset = true)
+    {
+        $this->repository->query($reset);
+        return $this;
+    }
+
+    public function withInactive()
+    {
+        $this->repository->withInactive();
+        return $this;
+    }
+
+    public function getModelName()
+    {
+        $this->repository->getModelName();
+        return $this;
+    }
+
+    public function getModelClass()
+    {
+        $this->repository->getModelClass();
+        return $this;
+    }
+
+    public function sort($by, $order = 'asc')
+    {
+        $this->repository->sort($by, $order);
+        return $this;
+    }
+
+    public function selected_relationships($id, $load_objects = false)
+    {
+        $this->repository->selected_relationships($id, $load_objects);
+        return $this;
+    }
+
+    public function load($fields)
+    {
+        $this->repository->load($fields);
+        return $this;
+    }
+
+    public function with($fields)
+    {
+        $this->repository->with($fields);
+        return $this;
+    }
+
+    public function withCount($fields)
+    {
+        $this->repository->withCount($fields);
+        return $this;
+    }
+
+    public function handleFiles(&$data)
+    {
+        $this->repository->handleFiles($data);
+        return $this;
     }
 }

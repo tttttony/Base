@@ -145,4 +145,15 @@ trait Filterable
             });
         }
     }
+
+    protected function compressFilters() {
+        $filter_string = '';
+        foreach($this->filters as $key => $filter) {
+            $filter_string .= $key.':';
+            foreach($filter as $comparison) {
+                $filter_string .= $comparison['operator'].$comparison['value'];
+            }
+        }
+        return $filter_string;
+    }
 }

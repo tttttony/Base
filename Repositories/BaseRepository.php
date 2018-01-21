@@ -83,4 +83,15 @@ interface BaseRepository
      * @return bool
      */
     public function clearCache();
+    public function getCacheKey();
+    public function query($reset = true);
+    public function withInactive();
+    public function getModelName();
+    public function getModelClass();
+    public function sort($by, $order = 'asc');
+    public function selected_relationships($id, $load_objects = false);
+    public function load($fields);
+    public function with($fields);
+    public function withCount($fields);
+    public function handleFiles(&$data);
 }
