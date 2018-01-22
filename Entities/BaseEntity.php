@@ -21,7 +21,8 @@ class BaseEntity extends Model
     {
         $model = parent::newInstance($attributes, $exists);
 
-        if(!$this->activeOnly) {
+        if(!$this->activeOnly
+            and method_exists($model, 'withInactive')) {
             $model->withInactive();
         }
 
@@ -54,7 +55,8 @@ class BaseEntity extends Model
     {
         $class_instance = new $class;
 
-        if(!$this->activeOnly) {
+        if(!$this->activeOnly
+            and method_exists($class_instance, 'withInactive')) {
             $class_instance->withInactive();
         }
 
