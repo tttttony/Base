@@ -69,6 +69,7 @@ class BaseEntity extends Model
 
     public function withInactive() {
         $this->activeOnly = false;
+        return $this;
     }
 
     protected function castAttribute($key, $value)
