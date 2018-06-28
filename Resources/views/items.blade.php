@@ -54,7 +54,7 @@
                             @endif
 
                             @if(isset($action['route']))
-                                <a href="{{ URL::route($action['route'], $item->getKey()) }}" {!! app('html')->attributes($action['attributes']) !!}>
+                                <a href="{{ URL::route($action['route'], array_merge(['id' => $item->getKey()], ($action['params'])?$action['params']:[])) }}" {!! app('html')->attributes($action['attributes']) !!}>
                                     @if(isset($action['icon']))
                                         <i class="fa fa-{{ $action['icon'] }}" data-toggle="tooltip" title="{{ $action['title'] }}"></i>
                                     @else
