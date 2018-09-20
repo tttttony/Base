@@ -3,6 +3,8 @@
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Validator;
+use Modules\Base\Repositories\UserRepository;
 
 class BaseServiceProvider extends ServiceProvider {
 
@@ -24,6 +26,18 @@ class BaseServiceProvider extends ServiceProvider {
 		$this->registerConfig();
 		$this->registerViews();
 		$this->registerBladeExtentions();
+
+        Validator::extend('uniqueUser', function ($attribute, $value, $parameters, $validator) {
+            try {
+                $userRepository = app()->make(UserRepository::class);
+                $user = $userRepository->findByEmail($value);
+                if(!empty($user->property_code)) {
+                    return false;
+                }
+            }
+            catch(\Exception $exception) {}
+            return true;
+        });
 	}
 
 	/**

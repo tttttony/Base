@@ -16,9 +16,7 @@
 	"require": {
 		"php": ">=5.5",
 		"composer/installers": "~1.0",
-		"nwidart/laravel-modules": "dev-master",
-		"creativeorange/gravatar": "^1.0",
-		"ellipsesynergie/api-response": "^0.12.3"
+		"nwidart/laravel-modules": "dev-master"
 	},
 	"autoload": {
 		"psr-4": {

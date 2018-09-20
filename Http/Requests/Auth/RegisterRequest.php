@@ -28,7 +28,7 @@ class RegisterRequest extends Request
     public function rules()
     {
         return [
-            'email'                 => 'required|email|unique:users',
+            'email'                 => 'required|uniqueUser',
             'password'              => 'required|alpha_num|min:6|confirmed',
             'password_confirmation' => 'required|alpha_num|min:6'
         ];
@@ -41,6 +41,8 @@ class RegisterRequest extends Request
      */
     public function messages()
     {
-        return [];
+        return [
+            'email.unique_user' => "Email already registered.",
+        ];
     }
 }
