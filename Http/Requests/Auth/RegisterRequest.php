@@ -29,8 +29,8 @@ class RegisterRequest extends Request
     {
         return [
             'email'                 => 'required|uniqueUser',
-            'password'              => 'required|alpha_num|min:6|confirmed',
-            'password_confirmation' => 'required|alpha_num|min:6'
+            'password'              => 'required|min:6|confirmed',
+            'password_confirmation' => 'required|min:6'
         ];
     }
 
